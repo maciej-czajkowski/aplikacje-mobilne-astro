@@ -16,6 +16,7 @@ import android.graphics.Color;
 import android.graphics.Point;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
+import android.os.Handler;
 import android.view.Display;
 import android.view.Gravity;
 import android.view.LayoutInflater;
@@ -26,10 +27,23 @@ import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.PopupWindow;
 
+import com.astrocalculator.AstroCalculator;
+import com.astrocalculator.AstroDateTime;
+
+import java.util.Calendar;
+import java.util.Date;
+import java.util.List;
+import java.util.Timer;
+import java.util.TimerTask;
+
 public class MainActivity extends AppCompatActivity {
 
-    double cordX = 0.0;
-    double cordY = 0.0;
+    double latitudude = 0.0;
+    double longitude = 0.0;
+    private AstroCalculator astroCalculator;
+    private final static Calendar calendar = Calendar.getInstance();
+
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -39,16 +53,44 @@ public class MainActivity extends AppCompatActivity {
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        ViewPager2 viewPager = findViewById(R.id.viewPager);
-        viewPager.setAdapter(new PagerAdapter(this));
 
+        AstroDateTime astroDateTime = new AstroDateTime(calendar.get(Calendar.YEAR),
+                calendar.get(Calendar.MONTH),
+                calendar.get(Calendar.DAY_OF_MONTH),
+                calendar.get(Calendar.HOUR_OF_DAY),
+                calendar.get(Calendar.MINUTE),
+                calendar.get(Calendar.SECOND),
+                calendar.get(Calendar.ZONE_OFFSET),
+                true);
+
+        this.astroCalculator = new AstroCalculator(astroDateTime, new AstroCalculator.Location(this.latitudude, this.longitude));
+
+        FragmentStateAdapter adapter = new PagerAdapter(this, this.astroCalculator);
+        ViewPager2 viewPager = findViewById(R.id.viewPager);
+        viewPager.setAdapter(adapter);
+
+//        SunFragment fragment =  (SunFragment) getSupportFragmentManager().findFragmentById(R.id.sun_fragment);
+//        Handler m_Handler = new Handler();
+//        Runnable mRunnable = new Runnable(){
+//            @Override
+//            public void run() {
+//                fragment.update();
+//                m_Handler.postDelayed(this, 3000);// move this inside the run method
+//            }
+//        };
+//        mRunnable.run();
 
     }
 
     private class PagerAdapter extends FragmentStateAdapter{
+        private AstroCalculator astroCalculator;
+        private SunFragment sunFragment;
 
-        public PagerAdapter(@NonNull FragmentActivity fragmentActivity) {
+        public PagerAdapter(@NonNull FragmentActivity fragmentActivity, AstroCalculator astroCalculator) {
             super(fragmentActivity);
+            this.astroCalculator = astroCalculator;
+            this.sunFragment = new SunFragment(this.astroCalculator);
+
         }
 
         public PagerAdapter(@NonNull Fragment fragment) {
@@ -64,7 +106,8 @@ public class MainActivity extends AppCompatActivity {
         public Fragment createFragment(int position) {
             switch (position) {
                 case 0:
-                    return new SunFragment();
+                    return this.sunFragment;
+//                    return new SunFragment(this.astroCalculator.getSunInfo());
                 default:
                     return new MoonFragment();
             }
@@ -74,6 +117,7 @@ public class MainActivity extends AppCompatActivity {
         public int getItemCount() {
             return 2;
         }
+
     }
 
     @Override
@@ -110,8 +154,8 @@ public class MainActivity extends AppCompatActivity {
         pw.showAtLocation(findViewById(R.id.viewPager), Gravity.CENTER, 0, 0);
         Button okButton = pwView.findViewById(R.id.okButton);
         okButton.setOnClickListener( view -> {
-            this.cordX = 0.0;
-            this.cordY = 0.0;
+//            this.latitudude = 0.0;
+//            this.longitude = 0.0;
             pw.dismiss();
         });
     }
