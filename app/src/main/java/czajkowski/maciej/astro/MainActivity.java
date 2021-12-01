@@ -11,10 +11,12 @@ import androidx.viewpager.widget.ViewPager;
 import androidx.viewpager2.adapter.FragmentStateAdapter;
 import androidx.viewpager2.widget.ViewPager2;
 
+import android.app.FragmentTransaction;
 import android.content.Context;
 import android.graphics.Color;
 import android.graphics.Point;
 import android.graphics.drawable.ColorDrawable;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.view.Display;
@@ -24,8 +26,10 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.PopupWindow;
+import android.widget.Toast;
 
 import com.astrocalculator.AstroCalculator;
 import com.astrocalculator.AstroDateTime;
@@ -38,10 +42,10 @@ import java.util.TimerTask;
 
 public class MainActivity extends AppCompatActivity {
 
-    double latitudude = 0.0;
-    double longitude = 0.0;
-    private AstroCalculator astroCalculator;
-    private final static Calendar calendar = Calendar.getInstance();
+    private double latitudude = 0.0;
+    private double longitude = 0.0;
+    private int refreshRate = 0;
+    private PagerAdapter adapter;
 
 
 
@@ -53,70 +57,9 @@ public class MainActivity extends AppCompatActivity {
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-
-        AstroDateTime astroDateTime = new AstroDateTime(calendar.get(Calendar.YEAR),
-                calendar.get(Calendar.MONTH),
-                calendar.get(Calendar.DAY_OF_MONTH),
-                calendar.get(Calendar.HOUR_OF_DAY),
-                calendar.get(Calendar.MINUTE),
-                calendar.get(Calendar.SECOND),
-                calendar.get(Calendar.ZONE_OFFSET),
-                true);
-
-        this.astroCalculator = new AstroCalculator(astroDateTime, new AstroCalculator.Location(this.latitudude, this.longitude));
-
-        FragmentStateAdapter adapter = new PagerAdapter(this, this.astroCalculator);
+        this.adapter = new PagerAdapter(this);
         ViewPager2 viewPager = findViewById(R.id.viewPager);
         viewPager.setAdapter(adapter);
-
-//        SunFragment fragment =  (SunFragment) getSupportFragmentManager().findFragmentById(R.id.sun_fragment);
-//        Handler m_Handler = new Handler();
-//        Runnable mRunnable = new Runnable(){
-//            @Override
-//            public void run() {
-//                fragment.update();
-//                m_Handler.postDelayed(this, 3000);// move this inside the run method
-//            }
-//        };
-//        mRunnable.run();
-
-    }
-
-    private class PagerAdapter extends FragmentStateAdapter{
-        private AstroCalculator astroCalculator;
-        private SunFragment sunFragment;
-
-        public PagerAdapter(@NonNull FragmentActivity fragmentActivity, AstroCalculator astroCalculator) {
-            super(fragmentActivity);
-            this.astroCalculator = astroCalculator;
-            this.sunFragment = new SunFragment(this.astroCalculator);
-
-        }
-
-        public PagerAdapter(@NonNull Fragment fragment) {
-            super(fragment);
-        }
-
-        public PagerAdapter(@NonNull FragmentManager fragmentManager, @NonNull Lifecycle lifecycle) {
-            super(fragmentManager, lifecycle);
-        }
-
-        @NonNull
-        @Override
-        public Fragment createFragment(int position) {
-            switch (position) {
-                case 0:
-                    return this.sunFragment;
-//                    return new SunFragment(this.astroCalculator.getSunInfo());
-                default:
-                    return new MoonFragment();
-            }
-        }
-
-        @Override
-        public int getItemCount() {
-            return 2;
-        }
 
     }
 
@@ -153,11 +96,66 @@ public class MainActivity extends AppCompatActivity {
         pw.setBackgroundDrawable(new ColorDrawable(Color.YELLOW));
         pw.showAtLocation(findViewById(R.id.viewPager), Gravity.CENTER, 0, 0);
         Button okButton = pwView.findViewById(R.id.okButton);
+        EditText longitudeView = pwView.findViewById(R.id.longitude);
+        EditText latitudeView = pwView.findViewById(R.id.latitude);
+        EditText refreshRateView = pwView.findViewById(R.id.refreshRate);
+
         okButton.setOnClickListener( view -> {
-//            this.latitudude = 0.0;
-//            this.longitude = 0.0;
-            pw.dismiss();
+            if (latitudeView.getText().toString().isEmpty() ||
+                    longitudeView.getText().toString().isEmpty() ||
+                    refreshRateView.getText().toString().isEmpty()) {
+                Toast.makeText(getApplicationContext(), "Wypełnij pola!", Toast.LENGTH_LONG).show();
+            } else {
+                try {
+                this.latitudude = Double.parseDouble(latitudeView.getText().toString());
+                this.longitude = Double.parseDouble(longitudeView.getText().toString());
+                this.refreshRate = Integer.parseInt(refreshRateView.getText().toString());
+                } catch (Exception e) {
+                    Toast.makeText(getApplicationContext(), "Błędne dane!", Toast.LENGTH_LONG).show();
+                    return;
+                }
+
+                this.adapter.getSunFragment().update(this.longitude, this.latitudude, this.refreshRate);
+//                this.adapter.getMoonFragment().update(this.longitude, this.latitudude);
+                pw.dismiss();
+            }
         });
+    }
+
+    private class PagerAdapter extends FragmentStateAdapter{
+        private SunFragment sunFragment = SunFragment.newInstance();
+
+        public PagerAdapter(@NonNull FragmentActivity fragmentActivity) {
+            super(fragmentActivity);
+        }
+
+        public PagerAdapter(@NonNull Fragment fragment) {
+            super(fragment);
+        }
+
+        public PagerAdapter(@NonNull FragmentManager fragmentManager, @NonNull Lifecycle lifecycle) {
+            super(fragmentManager, lifecycle);
+        }
+
+        @NonNull
+        @Override
+        public Fragment createFragment(int position) {
+            switch (position) {
+                case 0:
+//                    this.sunFragment = SunFragment.newInstance();
+                    return this.sunFragment ;
+//                    return new SunFragment(this.astroCalculator.getSunInfo());
+                default:
+                    return new MoonFragment();
+            }
+        }
+
+        @Override
+        public int getItemCount() {
+            return 2;
+        }
+
+        public SunFragment getSunFragment() { return this.sunFragment; }
     }
 
 }

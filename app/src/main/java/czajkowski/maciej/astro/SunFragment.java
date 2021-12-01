@@ -2,9 +2,11 @@ package czajkowski.maciej.astro;
 
 import android.os.Bundle;
 
+import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 
 import android.os.Handler;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -19,49 +21,35 @@ import java.util.Calendar;
  * Use the {@link SunFragment#newInstance} factory method to
  * create an instance of this fragment.
  */
-public class SunFragment extends Fragment implements Updateable {
+public class SunFragment extends Fragment {
 
-    // TODO: Rename parameter arguments, choose names that match
-    // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-    private static final String ARG_PARAM1 = "param1";
-    private static final String ARG_PARAM2 = "param2";
-    private final static int TIME_REFRESH_INTERVAL = 2000; //2 minutes
+    private static final String LATITUDE = "latitude";
+    private static final String LONGITUDE = "longitude";
+    private static final String REFRESH_RATE = "refreshRate";
 
+    private final static int TIME_REFRESH_INTERVAL_1S = 1000; //2 minutes
 
-    // TODO: Rename and change types of parameters
-    private String mParam1;
-    private String mParam2;
-    private TextView dusk;
-    private TextView dawn;
-    private TextView duskCivil;
-    private AstroCalculator astroCalculator;
     private View view;
-    private PhaseUpdater phaseUpdater;
-    private final static int REFRESH_INTERVAL = 200;
+    private Handler handler = new Handler();;
+    private Runnable refreshRunnable = null;
 
+
+    //for purpose of simulation
+    private double tLong;
+    private double tLati;
+
+    private int refreshRate;
+    private boolean init = false;
 
     public SunFragment() {
         // Required empty public constructor
     }
 
-    public SunFragment(AstroCalculator astroCalculator) {
-        this.astroCalculator = astroCalculator;
-    }
-
-    /**
-     * Use this factory method to create a new instance of
-     * this fragment using the provided parameters.
-     *
-     * @param param1 Parameter 1.
-     * @param param2 Parameter 2.
-     * @return A new instance of fragment SunFragment.
-     */
-    // TODO: Rename and change types and number of parameters
-    public static SunFragment newInstance(String param1, String param2) {
-        SunFragment fragment = new SunFragment(null);
+    public static SunFragment newInstance() {
+        SunFragment fragment = new SunFragment();
         Bundle args = new Bundle();
-        args.putString(ARG_PARAM1, param1);
-        args.putString(ARG_PARAM2, param2);
+//        args.putDouble(LATITUDE, longitude);
+//        args.putDouble(LONGITUDE, latitude);
         fragment.setArguments(args);
         return fragment;
     }
@@ -69,10 +57,10 @@ public class SunFragment extends Fragment implements Updateable {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        if (getArguments() != null) {
-            mParam1 = getArguments().getString(ARG_PARAM1);
-            mParam2 = getArguments().getString(ARG_PARAM2);
-        }
+//        if (getArguments() != null) {
+//            this.longitude = getArguments().getDouble(LONGITUDE);
+//            this.latitude = getArguments().getDouble(LATITUDE);
+//        }
     }
 
     @Override
@@ -83,50 +71,117 @@ public class SunFragment extends Fragment implements Updateable {
     }
 
     @Override
-    public void onViewCreated(View v, Bundle savedInstanceState) {
+    public void onViewCreated(@NonNull View v, Bundle savedInstanceState) {
         super.onViewCreated(v, savedInstanceState);
-        this.view = v;
-        this.update();
-        SunFragment sun = this;
-        Handler m_Handler = new Handler();
-        Runnable mRunnable = new Runnable(){
-            @Override
-            public void run() {
-                sun.update();
-                m_Handler.postDelayed(this, 1000);// move this inside the run method
-            }
-        };
-        mRunnable.run();
 
+        this.view = v;
+        if (savedInstanceState != null) {
+            this.update(savedInstanceState.getDouble(LONGITUDE),
+                    savedInstanceState.getDouble(LATITUDE),
+                    savedInstanceState.getInt(REFRESH_RATE));
+        }else {
+            TextView cords = v.findViewById(R.id.sunCords);
+            cords.setText("Szerokość: " + 0 + ", Długość: " + 0);
+        }
+        this.updateTime();
+        SunFragment sun = this;
+        Handler handler = new Handler();
+        //timer for 1s
+        try {
+            Runnable timeRunnable = new Runnable(){
+                @Override
+                public void run() {
+                    sun.updateTime();
+                    handler.postDelayed(this, TIME_REFRESH_INTERVAL_1S);// move this inside the run method
+                }
+            };
+            timeRunnable.run();
+        }
+        catch (Exception e) {
+            Log.e("SunFragment","Issue with timer thread!");
+        }
     }
 
-    @Override
-    public void update() {
-        TextView currentTime = this.view.findViewById(R.id.sunCurrentTime);
-        String hours = String.valueOf(Calendar.getInstance().get(Calendar.HOUR_OF_DAY));
-        String minutes = String.valueOf(Calendar.getInstance().get(Calendar.MINUTE));
-        String seconds = String.valueOf(Calendar.getInstance().get(Calendar.SECOND));
-        currentTime.setText(String.join(":", hours, minutes, seconds));
+    public void update(double longitude, double latitude, int refreshRate) {
+        this.tLati = latitude;
+        this.tLong = longitude;
+        this.updateViews(tLong, tLati);
+
+
+//        this.latitude = latitude;
+//        this.longitude = longitude;
+        this.refreshRate = refreshRate;
+
+        SunFragment sun = this;
+        try {
+            this.handler = new Handler();
+            if (this.refreshRunnable != null) {
+                this.handler.removeCallbacks(this.refreshRunnable);
+            }
+
+            this.refreshRunnable = new Runnable() {
+                @Override
+                public void run() {
+                    sun.updateViews(tLong, tLati);
+                    tLati++;
+                    tLong++;
+                    handler.postDelayed(this, refreshRate * 1000L);// move this inside the run method
+                }
+            };
+            refreshRunnable.run();
+        } catch (Exception e) {
+            Log.e("SunFragment", "Issue with location simulation thread!");
+        }
+    }
+
+    public void updateViews(double longitude, double latitude) {
+        TextView cords = this.view.findViewById(R.id.sunCords);
+        cords.setText("Długość: " + longitude + ", Szerokość: " + latitude);
+
+        AstroCalculator astroCalculator = AstroCalculatorFactory.getCurrentAstroCalculator(latitude, longitude);
 
         TextView sunDawnTime = this.view.findViewById(R.id.sunDawnTime);
-        String sunDawnTimeHours = String.format("%02d", this.astroCalculator.getSunInfo().getTwilightMorning().getHour());
-        String sunDawnTimeMinutes = String.format("%02d", this.astroCalculator.getSunInfo().getTwilightMorning().getMinute());
+        String sunDawnTimeHours = String.format("%02d", astroCalculator.getSunInfo().getTwilightMorning().getHour());
+        String sunDawnTimeMinutes = String.format("%02d", astroCalculator.getSunInfo().getTwilightMorning().getMinute());
         sunDawnTime.setText(String.join(":", sunDawnTimeHours, sunDawnTimeMinutes));
 
         TextView sunDuskTime = this.view.findViewById(R.id.sunDuskTime);
-        String sunDuskTimeHours = String.format("%02d", this.astroCalculator.getSunInfo().getTwilightEvening().getHour());
-        String sunDuskTimeMinutes = String.format("%02d", this.astroCalculator.getSunInfo().getTwilightEvening().getMinute());
+        String sunDuskTimeHours = String.format("%02d", astroCalculator.getSunInfo().getTwilightEvening().getHour());
+        String sunDuskTimeMinutes = String.format("%02d", astroCalculator.getSunInfo().getTwilightEvening().getMinute());
         sunDuskTime.setText(String.join(":", sunDuskTimeHours, sunDuskTimeMinutes));
 
         TextView sunSundownTime = this.view.findViewById(R.id.sunSundownTime);
-        String sunSundownTimeHours = String.format("%02d", this.astroCalculator.getSunInfo().getSunset().getHour());
-        String sunSundownTimeMinutes = String.format("%02d", this.astroCalculator.getSunInfo().getSunset().getMinute());
+        String sunSundownTimeHours = String.format("%02d", astroCalculator.getSunInfo().getSunset().getHour());
+        String sunSundownTimeMinutes = String.format("%02d", astroCalculator.getSunInfo().getSunset().getMinute());
         sunSundownTime.setText(String.join(":", sunSundownTimeHours, sunSundownTimeMinutes));
 
         TextView sunSunupTime = this.view.findViewById(R.id.sunSunupTime);
-        String sunSunupTimeHours = String.format("%02d", this.astroCalculator.getSunInfo().getSunrise().getHour());
-        String sunSunupTimeMinutes = String.format("%02d", this.astroCalculator.getSunInfo().getSunrise().getMinute());
+        String sunSunupTimeHours = String.format("%02d", astroCalculator.getSunInfo().getSunrise().getHour());
+        String sunSunupTimeMinutes = String.format("%02d", astroCalculator.getSunInfo().getSunrise().getMinute());
         sunSunupTime.setText(String.join(":", sunSunupTimeHours, sunSunupTimeMinutes));
 
+        TextView sunDawnAzymut = this.view.findViewById(R.id.sunDawnAzymut);
+        String sunDawnAzymutStr = String.format("%02f", Double.valueOf(astroCalculator.getSunInfo().getAzimuthRise()));
+        sunDawnAzymut.setText(sunDawnAzymutStr);
+
+        TextView sunDuskAzimut = this.view.findViewById(R.id.sunDuskAzimut);
+        String sunDuskAzimutStr = String.format("%02f", Double.valueOf(astroCalculator.getSunInfo().getAzimuthSet()));
+        sunDuskAzimut.setText(sunDuskAzimutStr);
+    }
+
+    public void updateTime() {
+        TextView currentTime = this.view.findViewById(R.id.sunCurrentTime);
+        String hours = String.format("%02d", Calendar.getInstance().get(Calendar.HOUR_OF_DAY));
+        String minutes = String.format("%02d", Calendar.getInstance().get(Calendar.MINUTE));
+        String seconds = String.format("%02d", Calendar.getInstance().get(Calendar.SECOND));
+        currentTime.setText(String.join(":", hours, minutes, seconds));
+    }
+
+    @Override
+    public void onSaveInstanceState(@NonNull Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putDouble(LATITUDE, this.tLati);
+        outState.putDouble(LONGITUDE, this.tLong);
+        outState.putInt(REFRESH_RATE, this.refreshRate);
     }
 }
