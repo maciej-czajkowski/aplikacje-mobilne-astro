@@ -2,21 +2,139 @@
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/ConstaintLayout"
+    android:id="@+id/moon_fragment"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".MoonFragment">
+    tools:context=".MoonFragment2">
 
     <!-- TODO: Update blank fragment layout -->
 
-    <Button
-        android:id="@+id/button"
+
+    <ImageView
+        android:id="@+id/sunIcon"
+        android:layout_width="141dp"
+        android:layout_height="183dp"
+        android:layout_marginTop="80dp"
+        android:src="@drawable/moon"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:ignore="ImageContrastCheck" />
+
+    <TableLayout
+        android:id="@+id/tableLayout"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Button"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toTopOf="parent">
+
+        <TableRow
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <TextView
+                android:id="@+id/blankTable"
+                android:layout_width="100dp"
+                android:layout_height="wrap_content" />
+
+            <TextView
+                android:id="@+id/moonTimeColumn"
+                android:layout_width="100dp"
+                android:layout_height="wrap_content"
+                android:text="@string/time" />
+
+            <TextView
+                android:id="@+id/moonAzymutColumn"
+                android:layout_width="100dp"
+                android:layout_height="wrap_content"
+                android:text="@string/azimut" />
+        </TableRow>
+
+        <TableRow
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <TextView
+                android:id="@+id/moonDawn"
+                android:layout_width="150dp"
+                android:layout_height="wrap_content"
+                android:text="@string/dawn" />
+
+            <TextView
+                android:id="@+id/moonDawnTime"
+                android:layout_width="100dp"
+                android:layout_height="wrap_content" />
+
+            <TextView
+                android:id="@+id/moonDawnAzymut"
+                android:layout_width="100dp"
+                android:layout_height="wrap_content" />
+        </TableRow>
+
+        <TableRow
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <TextView
+                android:id="@+id/moonDusk"
+                android:layout_width="150dp"
+                android:layout_height="wrap_content"
+                android:text="@string/dusk" />
+
+            <TextView
+                android:id="@+id/moonDuskTime"
+                android:layout_width="100dp"
+                android:layout_height="wrap_content" />
+
+            <TextView
+                android:id="@+id/moonDuskAzimut"
+                android:layout_width="100dp"
+                android:layout_height="wrap_content" />
+        </TableRow>
+
+        <TableRow
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <TextView
+                android:id="@+id/moonSundown"
+                android:layout_width="150dp"
+                android:layout_height="wrap_content"
+                android:text="@string/sundown" />
+
+            <TextView
+                android:id="@+id/moonSundownTime"
+                android:layout_width="100dp"
+                android:layout_height="wrap_content" />
+
+            <TextView
+                android:id="@+id/moonSundownAzimut"
+                android:layout_width="100dp"
+                android:layout_height="wrap_content" />
+        </TableRow>
+
+        <TableRow
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <TextView
+                android:id="@+id/moonSunup"
+                android:layout_width="150dp"
+                android:layout_height="wrap_content"
+                android:text="@string/sunup" />
+
+            <TextView
+                android:id="@+id/moonSunupTime"
+                android:layout_width="100dp"
+                android:layout_height="wrap_content" />
+
+            <TextView
+                android:id="@+id/moonSunupAzimut"
+                android:layout_width="100dp"
+                android:layout_height="wrap_content" />
+        </TableRow>
+    </TableLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

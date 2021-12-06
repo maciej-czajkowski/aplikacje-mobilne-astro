@@ -15,6 +15,7 @@ import android.widget.TextView;
 import com.astrocalculator.AstroCalculator;
 
 import java.util.Calendar;
+import java.util.Random;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -30,10 +31,7 @@ public class SunFragment extends Fragment {
     private final static int TIME_REFRESH_INTERVAL_1S = 1000; //2 minutes
 
     private View view;
-    private Handler handler = new Handler();;
-    private Runnable refreshRunnable = null;
-
-
+    private int id;
     //for purpose of simulation
     private double tLong;
     private double tLati;
@@ -57,88 +55,40 @@ public class SunFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-//        if (getArguments() != null) {
+        if (getArguments() != null) {
 //            this.longitude = getArguments().getDouble(LONGITUDE);
 //            this.latitude = getArguments().getDouble(LATITUDE);
-//        }
+        }
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.sun_fragment, container, false);
+        super.onCreateView(inflater, container, savedInstanceState);
+        this.view = inflater.inflate(R.layout.sun_fragment, container, false);
+        return this.view;
     }
 
     @Override
     public void onViewCreated(@NonNull View v, Bundle savedInstanceState) {
         super.onViewCreated(v, savedInstanceState);
-
+        Random rand = new Random();
+        id = rand.nextInt(50);
+        Log.e("id" ,String.valueOf(id));
         this.view = v;
-        if (savedInstanceState != null) {
-            this.update(savedInstanceState.getDouble(LONGITUDE),
-                    savedInstanceState.getDouble(LATITUDE),
-                    savedInstanceState.getInt(REFRESH_RATE));
-        }else {
-            TextView cords = v.findViewById(R.id.sunCords);
-            cords.setText("Szerokość: " + 0 + ", Długość: " + 0);
-        }
-        this.updateTime();
-        SunFragment sun = this;
-        Handler handler = new Handler();
-        //timer for 1s
-        try {
-            Runnable timeRunnable = new Runnable(){
-                @Override
-                public void run() {
-                    sun.updateTime();
-                    handler.postDelayed(this, TIME_REFRESH_INTERVAL_1S);// move this inside the run method
-                }
-            };
-            timeRunnable.run();
-        }
-        catch (Exception e) {
-            Log.e("SunFragment","Issue with timer thread!");
-        }
+        Log.e("view", v.toString());
     }
 
-    public void update(double longitude, double latitude, int refreshRate) {
+    public void update(double longitude, double latitude) {
         this.tLati = latitude;
         this.tLong = longitude;
         this.updateViews(tLong, tLati);
-
-
-//        this.latitude = latitude;
-//        this.longitude = longitude;
-        this.refreshRate = refreshRate;
-
-        SunFragment sun = this;
-        try {
-            this.handler = new Handler();
-            if (this.refreshRunnable != null) {
-                this.handler.removeCallbacks(this.refreshRunnable);
-            }
-
-            this.refreshRunnable = new Runnable() {
-                @Override
-                public void run() {
-                    sun.updateViews(tLong, tLati);
-                    tLati++;
-                    tLong++;
-                    handler.postDelayed(this, refreshRate * 1000L);// move this inside the run method
-                }
-            };
-            refreshRunnable.run();
-        } catch (Exception e) {
-            Log.e("SunFragment", "Issue with location simulation thread!");
-        }
     }
 
     public void updateViews(double longitude, double latitude) {
-        TextView cords = this.view.findViewById(R.id.sunCords);
-        cords.setText("Długość: " + longitude + ", Szerokość: " + latitude);
-
         AstroCalculator astroCalculator = AstroCalculatorFactory.getCurrentAstroCalculator(latitude, longitude);
+        Log.e("myid" ,String.valueOf(id));
 
         TextView sunDawnTime = this.view.findViewById(R.id.sunDawnTime);
         String sunDawnTimeHours = String.format("%02d", astroCalculator.getSunInfo().getTwilightMorning().getHour());
@@ -169,19 +119,15 @@ public class SunFragment extends Fragment {
         sunDuskAzimut.setText(sunDuskAzimutStr);
     }
 
-    public void updateTime() {
-        TextView currentTime = this.view.findViewById(R.id.sunCurrentTime);
-        String hours = String.format("%02d", Calendar.getInstance().get(Calendar.HOUR_OF_DAY));
-        String minutes = String.format("%02d", Calendar.getInstance().get(Calendar.MINUTE));
-        String seconds = String.format("%02d", Calendar.getInstance().get(Calendar.SECOND));
-        currentTime.setText(String.join(":", hours, minutes, seconds));
-    }
-
     @Override
     public void onSaveInstanceState(@NonNull Bundle outState) {
         super.onSaveInstanceState(outState);
         outState.putDouble(LATITUDE, this.tLati);
         outState.putDouble(LONGITUDE, this.tLong);
         outState.putInt(REFRESH_RATE, this.refreshRate);
+    }
+
+    public View isGetView() {
+        return this.view;
     }
 }
