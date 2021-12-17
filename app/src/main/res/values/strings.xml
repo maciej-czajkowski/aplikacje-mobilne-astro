@@ -12,12 +12,17 @@
     <string name="sunup">Wschód Cywilny</string>
     <string name="now">Nów</string>
     <string name="fullMoon">Pełnia</string>
+    <string name="degrees">Stopnie</string>
+    <string name="percent">%</string>
+
     <string name="moonPhase">Faza księżyca</string>
-    <string name="dayOfMontSynod">Dzień Miesiące Synodycznego</string>
+    <string name="dayOfMontSynod">Dzień Miesiąca Synodycznego</string>
+    <string name="days">Dni</string>
     <string name="longitude">Długość geo</string>
     <string name="latitude">Szerokość geo</string>
     <string name="refreshRate">Częstość odświeżania [s]</string>
     <string name="cordsViewDefaultText">podaj bieżącą lokalizacje w opcjach</string>
+
 
 
 </resources>

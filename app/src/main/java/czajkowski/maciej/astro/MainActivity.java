@@ -1,13 +1,13 @@
 package czajkowski.maciej.astro;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentActivity;
 import androidx.fragment.app.FragmentManager;
 import androidx.lifecycle.Lifecycle;
+import androidx.lifecycle.ViewModelProvider;
 import androidx.viewpager2.adapter.FragmentStateAdapter;
 import androidx.viewpager2.widget.ViewPager2;
 
@@ -34,10 +34,14 @@ import java.util.Calendar;
 
 public class MainActivity extends AppCompatActivity {
 
-    private final static int TIME_REFRESH_INTERVAL_1S = 1000; //2 minutes
+    private final static int TIME_REFRESH_INTERVAL_1S = 1000;
     private static final String LATITUDE = "latitude";
     private static final String LONGITUDE = "longitude";
     private static final String REFRESH_RATE = "refreshRate";
+    private static final double MAX_LONGITUDE = 180.0;
+    private static final double MIN_LONGITUDE = -180.0;
+    private static final double MAX_LATITUDE = 90.0;
+    private static final double MIN_LATITUDE = -90.0;
 
     private double latitude = 0.0;
     private double longitude = 0.0;
@@ -46,6 +50,7 @@ public class MainActivity extends AppCompatActivity {
     private TextView cordsTextView;
     private final Handler handler = new Handler();
     private Runnable refreshRunnable;
+    private BundleViewModel bundleViewModel;
 
 
 
@@ -63,7 +68,8 @@ public class MainActivity extends AppCompatActivity {
         ViewPager2 viewPager = findViewById(R.id.viewPager);
         viewPager.setAdapter(adapter);
 
-
+        this.bundleViewModel = new ViewModelProvider(this).get(BundleViewModel.class);
+        this.bundleViewModel.init();
 
         Handler handler = new Handler();
         //timer for 1s
@@ -85,14 +91,7 @@ public class MainActivity extends AppCompatActivity {
             this.longitude = savedInstanceState.getDouble(LONGITUDE);
             this.latitude = savedInstanceState.getDouble(LATITUDE);
             this.refreshRate = savedInstanceState.getInt(REFRESH_RATE);
-            getSupportFragmentManager().registerFragmentLifecycleCallbacks(new FragmentManager.FragmentLifecycleCallbacks() {
-                @Override
-                public void onFragmentViewCreated(@NonNull FragmentManager fm, @NonNull Fragment f, @NonNull View v, @Nullable Bundle savedInstanceState) {
-                    super.onFragmentViewCreated(fm, f, v, savedInstanceState);
-                    update();
-                }
-            }, false);
-//            this.update();
+            this.update();
         } else {
             this.cordsTextView.setText(R.string.cordsViewDefaultText);
         }
@@ -102,7 +101,6 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.menu, menu);
         return true;
     }
@@ -151,6 +149,9 @@ public class MainActivity extends AppCompatActivity {
                 this.latitude = Double.parseDouble(latitudeView.getText().toString());
                 this.longitude = Double.parseDouble(longitudeView.getText().toString());
                 this.refreshRate = Integer.parseInt(refreshRateView.getText().toString());
+                if (!validateCords(this.longitude, this.latitude)) {
+                    throw new Exception();
+                }
             } catch (Exception e) {
                 Toast.makeText(getApplicationContext(), "Błędne dane!", Toast.LENGTH_LONG).show();
                 return;
@@ -184,10 +185,19 @@ public class MainActivity extends AppCompatActivity {
                 @Override
                 public void run() {
                     cordsTextView.setText(MessageFormat.format("Długość: {0}, Szerokość: {1}", longitude, latitude));
-
-                    adapter.getSunFragment().update(longitude, latitude);
+                    /* sending bundle to fragments */
+                    Bundle bundle = new Bundle();
+                    bundle.putDouble(LATITUDE, latitude);
+                    bundle.putDouble(LONGITUDE, longitude);
+                    bundleViewModel.sendBundle(bundle);
+                    /* to imitate time */
                     longitude++;
                     latitude++;
+                    if (!validateCords(longitude, latitude)) {
+                        /* reset */
+                        longitude = -180;
+                        longitude = -90;
+                    }
                     handler.postDelayed(this, refreshRate * 1000L);// move this inside the run method
                 }
             };
@@ -198,9 +208,19 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    public static boolean validateCords(double longitude, double latitude) {
+        return longitude <= MAX_LONGITUDE && longitude >= MIN_LONGITUDE &&
+                latitude <= MAX_LATITUDE && latitude >= MIN_LATITUDE;
+    }
+
+
+    @Override
+    protected void onDestroy () {
+        super.onDestroy();
+        this.handler.removeCallbacks(this.refreshRunnable);
+    }
+
     private static class PagerAdapter extends FragmentStateAdapter{
-        private final SunFragment sunFragment = SunFragment.newInstance();
-        private final MoonFragment moonFragment = MoonFragment.newInstance();
 
 
         public PagerAdapter(@NonNull FragmentActivity fragmentActivity) {
@@ -220,9 +240,9 @@ public class MainActivity extends AppCompatActivity {
         public Fragment createFragment(int position) {
             switch (position) {
                 case 0:
-                    return this.sunFragment ;
+                    return SunFragment.newInstance() ;
                 default:
-                    return this.moonFragment;
+                    return MoonFragment.newInstance();
             }
         }
 
@@ -230,10 +250,5 @@ public class MainActivity extends AppCompatActivity {
         public int getItemCount() {
             return 2;
         }
-
-        public SunFragment getSunFragment() { return this.sunFragment; }
     }
-
-
-
 }
