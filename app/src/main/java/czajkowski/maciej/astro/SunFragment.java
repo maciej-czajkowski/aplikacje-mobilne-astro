@@ -34,8 +34,6 @@ public class SunFragment extends Fragment {
 
     public static SunFragment newInstance() {
         SunFragment fragment = new SunFragment();
-        Bundle args = new Bundle();
-        fragment.setArguments(args);
         return fragment;
     }
 
@@ -50,7 +48,6 @@ public class SunFragment extends Fragment {
         // Inflate the layout for this fragment
         super.onCreateView(inflater, container, savedInstanceState);
         this.view = inflater.inflate(R.layout.sun_fragment, container, false);
-        Log.d("onCreateView", this.view.toString());
         return this.view;
     }
 
@@ -62,7 +59,9 @@ public class SunFragment extends Fragment {
         bundleViewModel.getBundle().observe(getViewLifecycleOwner(), new Observer<Bundle>() {
             @Override
             public void onChanged(@Nullable Bundle bundle) {
-                update(bundle.getDouble(LONGITUDE), bundle.getDouble(LATITUDE));
+                if ( bundle != null ) {
+                    update(bundle.getDouble(LONGITUDE), bundle.getDouble(LATITUDE));
+                }
             }
         });
     }

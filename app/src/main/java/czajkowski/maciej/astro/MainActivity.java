@@ -38,6 +38,7 @@ public class MainActivity extends AppCompatActivity {
     private static final String LATITUDE = "latitude";
     private static final String LONGITUDE = "longitude";
     private static final String REFRESH_RATE = "refreshRate";
+
     private static final double MAX_LONGITUDE = 180.0;
     private static final double MIN_LONGITUDE = -180.0;
     private static final double MAX_LATITUDE = 90.0;
@@ -45,8 +46,8 @@ public class MainActivity extends AppCompatActivity {
 
     private double latitude = 0.0;
     private double longitude = 0.0;
+    private boolean init = false;
     private int refreshRate = 0;
-    private PagerAdapter adapter;
     private TextView cordsTextView;
     private final Handler handler = new Handler();
     private Runnable refreshRunnable;
@@ -57,17 +58,18 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
+        this.init = false;
         setContentView(R.layout.activity_main);
         this.cordsTextView = findViewById(R.id.cords);
 
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        this.adapter = new PagerAdapter(this);
-        ViewPager2 viewPager = findViewById(R.id.viewPager);
-        viewPager.setAdapter(adapter);
-
+        if (!getResources().getBoolean(R.bool.isTablet)) {
+            PagerAdapter adapter = new PagerAdapter(this);
+            ViewPager2 viewPager = findViewById(R.id.viewPager);
+            viewPager.setAdapter(adapter);
+        }
         this.bundleViewModel = new ViewModelProvider(this).get(BundleViewModel.class);
         this.bundleViewModel.init();
 
@@ -87,7 +89,7 @@ public class MainActivity extends AppCompatActivity {
             Log.e("Main Activity","Issue with timer thread!");
         }
 
-        if (savedInstanceState != null) {
+        if (savedInstanceState != null && savedInstanceState.containsKey(LONGITUDE) ) {
             this.longitude = savedInstanceState.getDouble(LONGITUDE);
             this.latitude = savedInstanceState.getDouble(LATITUDE);
             this.refreshRate = savedInstanceState.getInt(REFRESH_RATE);
@@ -138,7 +140,11 @@ public class MainActivity extends AppCompatActivity {
         View pwView = inflater.inflate(R.layout.settings_popup, null,false);
         final PopupWindow pw = new PopupWindow(pwView ,width,height, true);
         pw.setBackgroundDrawable(new ColorDrawable(Color.YELLOW));
-        pw.showAtLocation(findViewById(R.id.viewPager), Gravity.CENTER, 0, 0);
+        if (!getResources().getBoolean(R.bool.isTablet)) {
+            pw.showAtLocation(findViewById(R.id.viewPager), Gravity.CENTER, 0, 0);
+        } else {
+            pw.showAtLocation(findViewById(R.id.fragmentWrapper), Gravity.CENTER, 0, 0);
+        }
         Button okButton = pwView.findViewById(R.id.okButton);
         EditText longitudeView = pwView.findViewById(R.id.longitude);
         EditText latitudeView = pwView.findViewById(R.id.latitude);
@@ -146,6 +152,7 @@ public class MainActivity extends AppCompatActivity {
 
         okButton.setOnClickListener( view -> {
             try {
+                this.init = true;
                 this.latitude = Double.parseDouble(latitudeView.getText().toString());
                 this.longitude = Double.parseDouble(longitudeView.getText().toString());
                 this.refreshRate = Integer.parseInt(refreshRateView.getText().toString());
@@ -171,9 +178,11 @@ public class MainActivity extends AppCompatActivity {
     @Override
     public void onSaveInstanceState(@NonNull Bundle outState) {
         super.onSaveInstanceState(outState);
-        outState.putDouble(LATITUDE, this.latitude);
-        outState.putDouble(LONGITUDE, this.longitude);
-        outState.putInt(REFRESH_RATE, this.refreshRate);
+        if (init) {
+            outState.putDouble(LATITUDE, this.latitude);
+            outState.putDouble(LONGITUDE, this.longitude);
+            outState.putInt(REFRESH_RATE, this.refreshRate);
+        }
     }
 
     private void update() {

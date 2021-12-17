@@ -5,8 +5,14 @@
       <map>
         <entry key="../../../../layout/custom_preview.xml" value="0.21302083333333333" />
         <entry key="app/src/main/res/drawable/moon.xml" value="0.215625" />
+        <entry key="app/src/main/res/layout-land/activity_main.xml" value="0.1675485008818342" />
+        <entry key="app/src/main/res/layout-land/moon_fragment.xml" value="0.25" />
+        <entry key="app/src/main/res/layout-land/settings_popup.xml" value="0.3011463844797178" />
+        <entry key="app/src/main/res/layout-land/sun_fragment.xml" value="0.25" />
+        <entry key="app/src/main/res/layout-sw600dp-land/activity_main.xml" value="0.2" />
+        <entry key="app/src/main/res/layout-sw600dp/activity_main.xml" value="0.18" />
         <entry key="app/src/main/res/layout/activity_main.xml" value="0.33" />
-        <entry key="app/src/main/res/layout/moon_fragment.xml" value="0.20989583333333334" />
+        <entry key="app/src/main/res/layout/moon_fragment.xml" value="0.33" />
         <entry key="app/src/main/res/layout/settings_popup.xml" value="0.30326594090202175" />
         <entry key="app/src/main/res/layout/sun_fragment.xml" value="0.32472826086956524" />
         <entry key="app/src/main/res/layout/toolbar.xml" value="0.19791666666666666" />
