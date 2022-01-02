@@ -23,6 +23,9 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 
 import czajkowski.maciej.astro.R;
+import czajkowski.maciej.astro.ResourceHandler;
+import czajkowski.maciej.astro.storage.Record;
+import czajkowski.maciej.astro.viewmodels.RecordViewModel;
 import czajkowski.maciej.astro.viewmodels.WeatherInfo;
 import czajkowski.maciej.astro.viewmodels.WeatherInfoViewModel;
 
@@ -66,71 +69,38 @@ public class WeatherForcastFragment extends Fragment {
     public void onViewCreated(@NonNull View v, Bundle savedInstanceState) {
         super.onViewCreated(v, savedInstanceState);
 
-        WeatherInfoViewModel weatherInfoViewModel = new ViewModelProvider(requireActivity()).get(WeatherInfoViewModel.class);
-        weatherInfoViewModel.getData().observe(getViewLifecycleOwner(), new Observer<WeatherInfo>() {
+        RecordViewModel recordViewModel = new ViewModelProvider(requireActivity()).get(RecordViewModel.class);
+        recordViewModel.getRecord().observe(getViewLifecycleOwner(), new Observer<Record>() {
             @Override
-            public void onChanged(@Nullable WeatherInfo weatherInfo) {
-                if (weatherInfo != null) {
-                    Date date = new Date((long) weatherInfo.getOneApiResponse().getDailyList().get(1).getDate() * 1000);
-                    ((TextView) v.findViewById(R.id.forecastDate1)).setText(dateFormat.format(date));
-
-                    date = new Date((long) weatherInfo.getOneApiResponse().getDailyList().get(2).getDate() * 1000);
-                    ((TextView) v.findViewById(R.id.forecastDate2)).setText(dateFormat.format(date));
-
-                    date = new Date((long) weatherInfo.getOneApiResponse().getDailyList().get(3).getDate() * 1000);
-                    ((TextView) v.findViewById(R.id.forecastDate3)).setText(dateFormat.format(date));
-
-                    date = new Date((long) weatherInfo.getOneApiResponse().getDailyList().get(4).getDate() * 1000);
-                    ((TextView) v.findViewById(R.id.forecastDate4)).setText(dateFormat.format(date));
+            public void onChanged(@Nullable Record record) {
+                if ( record != null ) {
+                    ((TextView) v.findViewById(R.id.forecastDate1)).setText(record.getForecast1Date());
+                    ((TextView) v.findViewById(R.id.forecastDate2)).setText(record.getForecast2Date());
+                    ((TextView) v.findViewById(R.id.forecastDate3)).setText(record.getForecast3Date());
+                    ((TextView) v.findViewById(R.id.forecastDate4)).setText(record.getForecast4Date());
 
                     ((TextView) v.findViewById(R.id.forecastTemp1))
-                            .setText(df.format(weatherInfo.getOneApiResponse().getDailyList().get(1).getTemp().getMax() + weatherInfo.getOneApiResponse().getDailyList().get(1).getTemp().getMin() / 2));
-
+                            .setText(df.format(record.getForecast1Temp()));
                     ((TextView) v.findViewById(R.id.forecastTemp2))
-                            .setText(df.format(weatherInfo.getOneApiResponse().getDailyList().get(2).getTemp().getMax() + weatherInfo.getOneApiResponse().getDailyList().get(2).getTemp().getMin() / 2));
-
+                            .setText(df.format(record.getForecast2Temp()));
                     ((TextView) v.findViewById(R.id.forecastTemp3))
-                            .setText(df.format(weatherInfo.getOneApiResponse().getDailyList().get(3).getTemp().getMax() + weatherInfo.getOneApiResponse().getDailyList().get(3).getTemp().getMin() / 2));
-
+                            .setText(df.format(record.getForecast3Temp()));
                     ((TextView) v.findViewById(R.id.forecastTemp4))
-                            .setText(df.format(weatherInfo.getOneApiResponse().getDailyList().get(4).getTemp().getMax() + weatherInfo.getOneApiResponse().getDailyList().get(4).getTemp().getMin() / 2));
+                            .setText(df.format(record.getForecast4Temp()));
 
                     ((TextView) v.findViewById(R.id.forecastDesc1))
-                            .setText(weatherInfo.getOneApiResponse().getDailyList().get(1).getWeatherList().get(0).getDescription());
-
+                            .setText(record.getForecast1Description());
                     ((TextView) v.findViewById(R.id.forecastDesc2))
-                            .setText(weatherInfo.getOneApiResponse().getDailyList().get(2).getWeatherList().get(0).getDescription());
-
+                            .setText(record.getForecast2Description());
                     ((TextView) v.findViewById(R.id.forecastDesc3))
-                            .setText(weatherInfo.getOneApiResponse().getDailyList().get(3).getWeatherList().get(0).getDescription());
-
+                            .setText(record.getForecast3Description());
                     ((TextView) v.findViewById(R.id.forecastDesc4))
-                            .setText(weatherInfo.getOneApiResponse().getDailyList().get(4).getWeatherList().get(0).getDescription());
+                            .setText(record.getForecast4Description());
 
-                    String iconUrl = WEATHER_ICON_URL_PREFIX +
-                            weatherInfo.getOneApiResponse().getDailyList().get(1).getWeatherList().get(0).getIcon() +
-                            WEATHER_ICON_FILE_EXTENSION;
-
-                    Picasso.with(v.getContext()).load(iconUrl).into(((ImageView) v.findViewById(R.id.forecastIcon1)));
-
-                    iconUrl = WEATHER_ICON_URL_PREFIX +
-                            weatherInfo.getOneApiResponse().getDailyList().get(2).getWeatherList().get(0).getIcon() +
-                            WEATHER_ICON_FILE_EXTENSION;
-
-                    Picasso.with(v.getContext()).load(iconUrl).into(((ImageView) v.findViewById(R.id.forecastIcon2)));
-
-                    iconUrl = WEATHER_ICON_URL_PREFIX +
-                            weatherInfo.getOneApiResponse().getDailyList().get(3).getWeatherList().get(0).getIcon() +
-                            WEATHER_ICON_FILE_EXTENSION;
-
-                    Picasso.with(v.getContext()).load(iconUrl).into(((ImageView) v.findViewById(R.id.forecastIcon3)));
-
-                    iconUrl = WEATHER_ICON_URL_PREFIX +
-                            weatherInfo.getOneApiResponse().getDailyList().get(4).getWeatherList().get(0).getIcon() +
-                            WEATHER_ICON_FILE_EXTENSION;
-
-                    Picasso.with(v.getContext()).load(iconUrl).into(((ImageView) v.findViewById(R.id.forecastIcon4)));
-
+                    ((ImageView) v.findViewById(R.id.forecastIcon1)).setImageResource(ResourceHandler.getIconResource(record.getForecast1Icon()));
+                    ((ImageView) v.findViewById(R.id.forecastIcon2)).setImageResource(ResourceHandler.getIconResource(record.getForecast2Icon()));
+                    ((ImageView) v.findViewById(R.id.forecastIcon3)).setImageResource(ResourceHandler.getIconResource(record.getForecast3Icon()));
+                    ((ImageView) v.findViewById(R.id.forecastIcon4)).setImageResource(ResourceHandler.getIconResource(record.getForecast4Icon()));
 
                 } else {
                     Log.e("Forecast call", "response is error");

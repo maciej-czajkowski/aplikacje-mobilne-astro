@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".fragments.AdditionalWeatherFragment">
+
+    <!-- TODO: Update blank fragment layout -->
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <TextView
+            android:id="@+id/additionalInfoLabel"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="32dp"
+            android:text="@string/additionalInfo"
+            android:textSize="34sp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <TextView
+            android:id="@+id/windSpeedLabel"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="24dp"
+            android:text="@string/windSpeed"
+            app:layout_constraintEnd_toStartOf="@+id/windSpeed"
+            app:layout_constraintHorizontal_bias="0.5"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/additionalInfoLabel" />
+
+        <TextView
+            android:id="@+id/windDegLabel"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/windDeg"
+            app:layout_constraintEnd_toEndOf="@+id/windSpeedLabel"
+            app:layout_constraintStart_toStartOf="@+id/windSpeedLabel"
+            app:layout_constraintTop_toBottomOf="@+id/windSpeedLabel" />
+
+        <TextView
+            android:id="@+id/windDeg"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/unknown"
+            app:layout_constraintEnd_toEndOf="@+id/windSpeed"
+            app:layout_constraintStart_toStartOf="@+id/windSpeed"
+            app:layout_constraintTop_toBottomOf="@+id/windSpeed" />
+
+        <TextView
+            android:id="@+id/humidityLabel"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/humidity"
+            app:layout_constraintEnd_toEndOf="@+id/windDegLabel"
+            app:layout_constraintStart_toStartOf="@+id/windDegLabel"
+            app:layout_constraintTop_toBottomOf="@+id/windDegLabel" />
+
+        <TextView
+            android:id="@+id/humidity"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/unknown"
+            app:layout_constraintEnd_toEndOf="@+id/windDeg"
+            app:layout_constraintStart_toStartOf="@+id/windDeg"
+            app:layout_constraintTop_toBottomOf="@+id/windDeg" />
+
+        <TextView
+            android:id="@+id/windSpeed"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="24dp"
+            android:text="@string/unknown"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.5"
+            app:layout_constraintStart_toEndOf="@+id/windSpeedLabel"
+            app:layout_constraintTop_toBottomOf="@+id/additionalInfoLabel" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+</FrameLayout>

@@ -1,0 +1,205 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <TextView
+            android:id="@+id/forecastDesc4"
+            android:layout_width="100dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:gravity="center"
+            android:text="TextView"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.5"
+            app:layout_constraintStart_toEndOf="@+id/forecastDesc3"
+            app:layout_constraintTop_toBottomOf="@+id/forecastIcon4" />
+
+        <TextView
+            android:id="@+id/forecastTemp4"
+            android:layout_width="100dp"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:text="@string/unknown"
+            app:layout_constraintBottom_toBottomOf="@+id/forecastTemp3"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.5"
+            app:layout_constraintStart_toEndOf="@+id/forecastTemp3"
+            app:layout_constraintTop_toTopOf="@+id/forecastTemp3" />
+
+        <TextView
+            android:id="@+id/forecastDesc3"
+            android:layout_width="100dp"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:text="TextView"
+            app:layout_constraintBottom_toBottomOf="@+id/forecastDesc4"
+            app:layout_constraintEnd_toStartOf="@+id/forecastDesc4"
+            app:layout_constraintHorizontal_bias="0.5"
+            app:layout_constraintStart_toEndOf="@+id/forecastDesc2"
+            app:layout_constraintTop_toTopOf="@+id/forecastDesc4" />
+
+        <TextView
+            android:id="@+id/forecastTemp3"
+            android:layout_width="100dp"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:text="@string/unknown"
+            app:layout_constraintBottom_toBottomOf="@+id/forecastTemp2"
+            app:layout_constraintEnd_toStartOf="@+id/forecastTemp4"
+            app:layout_constraintHorizontal_bias="0.5"
+            app:layout_constraintStart_toEndOf="@+id/forecastTemp2"
+            app:layout_constraintTop_toTopOf="@+id/forecastTemp2" />
+
+        <TextView
+            android:id="@+id/forecastDesc2"
+            android:layout_width="100dp"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:text="TextView"
+            app:layout_constraintBottom_toBottomOf="@+id/forecastDesc3"
+            app:layout_constraintEnd_toStartOf="@+id/forecastDesc3"
+            app:layout_constraintHorizontal_bias="0.5"
+            app:layout_constraintStart_toEndOf="@+id/forecastDesc1"
+            app:layout_constraintTop_toTopOf="@+id/forecastDesc3" />
+
+        <ImageView
+            android:id="@+id/forecastIcon2"
+            android:layout_width="100dp"
+            android:layout_height="75dp"
+            android:layout_gravity="center|center_horizontal|center_vertical"
+            android:src="@drawable/warning"
+            app:layout_constraintBottom_toBottomOf="@+id/forecastIcon1"
+            app:layout_constraintEnd_toStartOf="@+id/forecastIcon3"
+            app:layout_constraintHorizontal_bias="0.5"
+            app:layout_constraintStart_toEndOf="@+id/forecastIcon1"
+            app:layout_constraintTop_toTopOf="@+id/forecastIcon1" />
+
+        <ImageView
+            android:id="@+id/forecastIcon4"
+            android:layout_width="100dp"
+            android:layout_height="75dp"
+            android:layout_gravity="center|center_horizontal|center_vertical"
+            android:src="@drawable/warning"
+            app:layout_constraintBottom_toBottomOf="@+id/forecastIcon3"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.5"
+            app:layout_constraintStart_toEndOf="@+id/forecastIcon3"
+            app:layout_constraintTop_toTopOf="@+id/forecastIcon3" />
+
+        <ImageView
+            android:id="@+id/forecastIcon3"
+            android:layout_width="100dp"
+            android:layout_height="75dp"
+            android:layout_gravity="center|center_horizontal|center_vertical"
+            android:src="@drawable/warning"
+            app:layout_constraintBottom_toBottomOf="@+id/forecastIcon2"
+            app:layout_constraintEnd_toStartOf="@+id/forecastIcon4"
+            app:layout_constraintHorizontal_bias="0.5"
+            app:layout_constraintStart_toEndOf="@+id/forecastIcon2"
+            app:layout_constraintTop_toTopOf="@+id/forecastIcon2" />
+
+        <ImageView
+            android:id="@+id/forecastIcon1"
+            android:layout_width="100dp"
+            android:layout_height="75dp"
+            android:layout_gravity="center|center_horizontal|center_vertical"
+            android:layout_marginTop="8dp"
+            android:src="@drawable/warning"
+            app:layout_constraintEnd_toStartOf="@+id/forecastIcon2"
+            app:layout_constraintHorizontal_bias="0.5"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/forecastDate1" />
+
+        <TextView
+            android:id="@+id/forecastTemp2"
+            android:layout_width="100dp"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:text="@string/unknown"
+            app:layout_constraintBottom_toBottomOf="@+id/forecastTemp1"
+            app:layout_constraintEnd_toStartOf="@+id/forecastTemp3"
+            app:layout_constraintHorizontal_bias="0.5"
+            app:layout_constraintStart_toEndOf="@+id/forecastTemp1"
+            app:layout_constraintTop_toTopOf="@+id/forecastTemp1" />
+
+        <TextView
+            android:id="@+id/forecastTemp1"
+            android:layout_width="100dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:gravity="center"
+            android:text="@string/unknown"
+            app:layout_constraintEnd_toStartOf="@+id/forecastTemp2"
+            app:layout_constraintHorizontal_bias="0.5"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/forecastDesc1" />
+
+        <TextView
+            android:id="@+id/forecastDesc1"
+            android:layout_width="100dp"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:text="TextView"
+            app:layout_constraintBottom_toBottomOf="@+id/forecastDesc3"
+            app:layout_constraintEnd_toStartOf="@+id/forecastDesc2"
+            app:layout_constraintHorizontal_bias="0.5"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="@+id/forecastDesc3" />
+
+        <TextView
+            android:id="@+id/forecastDate1"
+            android:layout_width="100dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="24dp"
+            android:gravity="center"
+            android:text="@string/unknown"
+            app:layout_constraintEnd_toStartOf="@+id/forecastDate2"
+            app:layout_constraintHorizontal_bias="0.5"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <TextView
+            android:id="@+id/forecastDate2"
+            android:layout_width="100dp"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:text="@string/unknown"
+            app:layout_constraintBottom_toBottomOf="@+id/forecastDate1"
+            app:layout_constraintEnd_toStartOf="@+id/forecastDate3"
+            app:layout_constraintHorizontal_bias="0.5"
+            app:layout_constraintStart_toEndOf="@+id/forecastDate1"
+            app:layout_constraintTop_toTopOf="@+id/forecastDate1" />
+
+        <TextView
+            android:id="@+id/forecastDate3"
+            android:layout_width="100dp"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:text="@string/unknown"
+            app:layout_constraintBottom_toBottomOf="@+id/forecastDate2"
+            app:layout_constraintEnd_toStartOf="@+id/forecastDate4"
+            app:layout_constraintHorizontal_bias="0.5"
+            app:layout_constraintStart_toEndOf="@+id/forecastDate2"
+            app:layout_constraintTop_toTopOf="@+id/forecastDate2" />
+
+        <TextView
+            android:id="@+id/forecastDate4"
+            android:layout_width="100dp"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:text="@string/unknown"
+            app:layout_constraintBottom_toBottomOf="@+id/forecastDate3"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.5"
+            app:layout_constraintStart_toEndOf="@+id/forecastDate3"
+            app:layout_constraintTop_toTopOf="@+id/forecastDate3" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</FrameLayout>

@@ -4,8 +4,13 @@
     <option name="filePathToZoomLevelMap">
       <map>
         <entry key="../../../../layout/custom_preview.xml" value="0.21302083333333333" />
+        <entry key="app/src/main/res/drawable-v24/ic_launcher_foreground.xml" value="0.11019736842105263" />
+        <entry key="app/src/main/res/drawable/icon01d.xml" value="0.11019736842105263" />
         <entry key="app/src/main/res/drawable/moon.xml" value="0.215625" />
         <entry key="app/src/main/res/layout-land/activity_main.xml" value="0.1675485008818342" />
+        <entry key="app/src/main/res/layout-land/fragment_additional_weather.xml" value="0.13403880070546736" />
+        <entry key="app/src/main/res/layout-land/fragment_weather_forcast.xml" value="0.33" />
+        <entry key="app/src/main/res/layout-land/main_weather_fragment.xml" value="0.33" />
         <entry key="app/src/main/res/layout-land/moon_fragment.xml" value="0.25" />
         <entry key="app/src/main/res/layout-land/settings_popup.xml" value="0.3011463844797178" />
         <entry key="app/src/main/res/layout-land/sun_fragment.xml" value="0.25" />
@@ -19,7 +24,7 @@
         <entry key="app/src/main/res/layout/fragment_weather_forcast.xml" value="0.11875" />
         <entry key="app/src/main/res/layout/main_weather_fragment.xml" value="0.18" />
         <entry key="app/src/main/res/layout/moon_fragment.xml" value="0.33" />
-        <entry key="app/src/main/res/layout/settings_popup.xml" value="0.30326594090202175" />
+        <entry key="app/src/main/res/layout/settings_popup.xml" value="0.16" />
         <entry key="app/src/main/res/layout/settings_popup_old.xml" value="0.1" />
         <entry key="app/src/main/res/layout/sun_fragment.xml" value="0.22" />
         <entry key="app/src/main/res/layout/toolbar.xml" value="0.19791666666666666" />

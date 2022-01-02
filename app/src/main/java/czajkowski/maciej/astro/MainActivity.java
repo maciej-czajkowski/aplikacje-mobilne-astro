@@ -7,6 +7,7 @@ import androidx.fragment.app.FragmentActivity;
 import androidx.fragment.app.FragmentManager;
 import androidx.lifecycle.Lifecycle;
 import androidx.lifecycle.ViewModelProvider;
+import androidx.room.Room;
 import androidx.viewpager2.adapter.FragmentStateAdapter;
 import androidx.viewpager2.widget.ViewPager2;
 
@@ -32,9 +33,14 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import java.text.DecimalFormat;
+import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Date;
+import java.util.List;
 
 import czajkowski.maciej.astro.fragments.AdditionalWeatherFragment;
 import czajkowski.maciej.astro.fragments.MainWeatherFragment;
@@ -45,8 +51,12 @@ import czajkowski.maciej.astro.retrofit.data.OpenWeatherData;
 import czajkowski.maciej.astro.retrofit.oneapi.data.OneApiResponse;
 import czajkowski.maciej.astro.retrofit.wrappers.OpenWeatherApi;
 import czajkowski.maciej.astro.retrofit.wrappers.OpenWeatherInterfaceMetric;
+import czajkowski.maciej.astro.storage.AppDataBase;
+import czajkowski.maciej.astro.storage.Record;
+import czajkowski.maciej.astro.storage.RecordDao;
 import czajkowski.maciej.astro.viewmodels.BundleViewModel;
 import czajkowski.maciej.astro.viewmodels.InternetViewModel;
+import czajkowski.maciej.astro.viewmodels.RecordViewModel;
 import czajkowski.maciej.astro.viewmodels.WeatherInfo;
 import czajkowski.maciej.astro.viewmodels.WeatherInfoViewModel;
 import retrofit2.Call;
@@ -54,36 +64,24 @@ import retrofit2.Callback;
 import retrofit2.Response;
 
 public class MainActivity extends AppCompatActivity {
-    private static final String INTERNET_AVAILABILITY = "isInternetAvailable";
-
     private final static int TIME_REFRESH_INTERVAL_1S = 1000;
-    private static final String LATITUDE = "latitude";
-    private static final String LONGITUDE = "longitude";
     private static final String REFRESH_RATE = "refreshRate";
+    private static final String UID = "uid";
 
-    private static final double MAX_LONGITUDE = 180.0;
-    private static final double MIN_LONGITUDE = -180.0;
-    private static final double MAX_LATITUDE = 90.0;
-    private static final double MIN_LATITUDE = -90.0;
+    @SuppressLint("SimpleDateFormat")
+    private final SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd ");
 
     private PopupWindow pw;
 
-    private double latitude = 0.0;
-    private double longitude = 0.0;
-    private boolean init = false;
-    private int refreshRate = 0;
-    private TextView cordsTextView;
+    private int refreshRate = 300;
     private final Handler handler = new Handler();
     private Runnable refreshRunnable;
-    private BundleViewModel bundleViewModel;
-    private WeatherInfoViewModel weatherInfoViewModel;
-    private InternetViewModel internetViewModel;
+    private RecordViewModel recordViewModel;
 
     private boolean internetAvailability = false;
-    private boolean lastOpSuccesfull = false;
 
     private SpinnerWrapper spinnerWrapper;
-
+    private RecordDao recordDao;
 
 
     @Override
@@ -97,20 +95,16 @@ public class MainActivity extends AppCompatActivity {
             ViewPager2 viewPager = findViewById(R.id.mainViewPager);
             viewPager.setAdapter(adapter);
         }
-        this.bundleViewModel = new ViewModelProvider(this).get(BundleViewModel.class);
-        this.bundleViewModel.init();
-
-        this.internetViewModel = new ViewModelProvider(this).get(InternetViewModel.class);
-        this.internetViewModel.init();
-
-        this.weatherInfoViewModel = new ViewModelProvider(this).get(WeatherInfoViewModel.class);
-        this.weatherInfoViewModel.init();
 
 
+        this.recordViewModel = new ViewModelProvider(this).get(RecordViewModel.class);
+        this.recordViewModel.init();
+
+        /* init timer */
         Handler handler = new Handler();
         //timer for 1s
         try {
-            Runnable timeRunnable = new Runnable(){
+            Runnable timeRunnable = new Runnable() {
                 @Override
                 public void run() {
                     updateTime();
@@ -118,15 +112,13 @@ public class MainActivity extends AppCompatActivity {
                 }
             };
             timeRunnable.run();
-        }
-        catch (Exception e) {
-            Log.e("Main Activity","Issue with timer thread!");
+        } catch (Exception e) {
+            Log.e("Main Activity", "Issue with timer thread!");
         }
 
-        // bundle for communication with fragments
+        // alert fragment regarding internet connection
         this.internetAvailability = this.isInternetAvailable();
         Log.e("MainActivity", "is internet available = " + this.isInternetAvailable());
-        this.internetViewModel.alertFragments(this.internetAvailability);
 
         // checks whether internet connection is constant, alert fragments if not
         Runnable internetConnectionRunnable = new Runnable() {
@@ -142,36 +134,40 @@ public class MainActivity extends AppCompatActivity {
                     } else {
                         findViewById(R.id.warningIcon).setVisibility(View.INVISIBLE);
                     }
-                    internetViewModel.alertFragments(internetAvailability);
+//                    internetViewModel.alertFragments(internetAvailability);
                 }
                 handler.postDelayed(this, 1000);
             }
         };
         this.handler.post(internetConnectionRunnable);
 
-        findViewById(R.id.refreshIcon).setOnClickListener( x -> this.update());
+        findViewById(R.id.refreshIcon).setOnClickListener(x -> this.update());
 
+        /* setup db */
+        AppDataBase db = Room.databaseBuilder(getApplicationContext(), AppDataBase.class, "cities").allowMainThreadQueries().build();
+        this.recordDao = db.recordDao();
+        List<Record> records;
+        records = recordDao.getAll();
+        records.forEach(record -> Log.e("Database record", record.toString()));
 
         // spinner setup
         Spinner spinner = findViewById(R.id.citySpinner);
         this.spinnerWrapper = new SpinnerWrapper(spinner, this);
-        ArrayList<String> cities = new ArrayList<>();
-        cities.add("Łódź");
-        cities.add("Warszawa");
-        this.spinnerWrapper.setup(cities);
+        this.spinnerWrapper.setup(records, true);
 
+        if (savedInstanceState != null) {
+            if (savedInstanceState.containsKey(UID)) {
+                int uid = savedInstanceState.getInt(UID);
+                spinnerWrapper.setSelection(uid);
+            }
+            int refreshRate = savedInstanceState.getInt(REFRESH_RATE);
+            if (refreshRate != 0) {
+                startRefreshRunnable(refreshRate);
+            }
+        }
 
         Button addButton = findViewById(R.id.addCityButton);
         addButton.setOnClickListener(e -> this.showSettingsPopupWindow());
-
-        if (savedInstanceState != null && savedInstanceState.containsKey(LONGITUDE) ) {
-            this.longitude = savedInstanceState.getDouble(LONGITUDE);
-            this.latitude = savedInstanceState.getDouble(LATITUDE);
-            this.refreshRate = savedInstanceState.getInt(REFRESH_RATE);
-            this.updateMoonPhases();
-        } else {
-//            this.cordsTextView.setText(R.string.cordsViewDefaultText);
-        }
 
     }
 
@@ -194,66 +190,75 @@ public class MainActivity extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 
-    public void updateTime() {
-        TextView currentTime = findViewById(R.id.currentTime);
-
-        @SuppressLint("DefaultLocale") String hours = String.format("%02d", Calendar.getInstance().get(Calendar.HOUR_OF_DAY));
-        @SuppressLint("DefaultLocale") String minutes = String.format("%02d", Calendar.getInstance().get(Calendar.MINUTE));
-        @SuppressLint("DefaultLocale") String seconds = String.format("%02d", Calendar.getInstance().get(Calendar.SECOND));
-        currentTime.setText(String.join(":", hours, minutes, seconds));
-    }
 
     public void showSettingsPopupWindow() {
         Point size = new Point();
         //get window size
         getWindowManager().getDefaultDisplay().getSize(size);
 
-        int width = (int) (size.x - 0.25*size.x);
-        int height = (int) (size.y - 0.25*size.y);
+        int width = (int) (size.x - 0.25 * size.x);
+        int height = (int) (size.y - 0.25 * size.y);
 
         LayoutInflater inflater = this.getLayoutInflater();
-        View pwView = inflater.inflate(R.layout.settings_popup, null,false);
-        pw = new PopupWindow(pwView ,width,height, true);
+        View pwView = inflater.inflate(R.layout.settings_popup, null, false);
+        pw = new PopupWindow(pwView, width, height, true);
         pw.setBackgroundDrawable(new ColorDrawable(Color.YELLOW));
         if (!getResources().getBoolean(R.bool.isTablet)) {
             pw.showAtLocation(findViewById(R.id.mainViewPager), Gravity.CENTER, 0, 0);
         } else {
 //            pw.showAtLocation(findViewById(R.id.fragmentWrapper), Gravity.CENTER, 0, 0);
         }
-        Button okButton = pwView.findViewById(R.id.okButton);
+        Button addButton = pwView.findViewById(R.id.addButton);
         EditText cityInputText = pwView.findViewById(R.id.inputCity);
 
-        EditText refreshRateView = pwView.findViewById(R.id.refreshRate);
 
-        okButton.setOnClickListener( view -> {
-                if (this.isInternetAvailable()) {
-                    if (refreshRateView.getText().toString().isEmpty()) {
-                        Toast.makeText(getApplicationContext(), "Missing fields!", Toast.LENGTH_LONG).show();
-                    } else {
-                        addCity(cityInputText.getText().toString());
-                    }
+        addButton.setOnClickListener(view -> {
+            if (this.isInternetAvailable()) {
+                if (cityInputText.getText().toString().isEmpty()) {
+                    Toast.makeText(getApplicationContext(), "Podaj nazwe miasta!", Toast.LENGTH_LONG).show();
                 } else {
-                    pw.dismiss();
-                    Toast.makeText(getApplicationContext(), "Could not add city without internet connection!", Toast.LENGTH_LONG).show();
+                    addCity(cityInputText.getText().toString());
+                    Toast.makeText(getApplicationContext(), "Dodano miasto", Toast.LENGTH_LONG).show();
+
                 }
+            } else {
+//                pw.dismiss();
+                Toast.makeText(getApplicationContext(), "Could not add city without internet connection!", Toast.LENGTH_LONG).show();
+            }
         });
+
+        Button refreshRateButton = pwView.findViewById(R.id.refreshRateButton);
+
+        EditText refreshRateView = pwView.findViewById(R.id.refreshRate);
+        refreshRateView.setText(String.valueOf(this.refreshRate));
+
+        refreshRateButton.setOnClickListener(view -> {
+            refreshRate = Integer.parseInt(refreshRateView.getText().toString());
+            startRefreshRunnable(refreshRate);
+        });
+
     }
 
     @Override
     public void onSaveInstanceState(@NonNull Bundle outState) {
         super.onSaveInstanceState(outState);
-        if (init) {
-            outState.putDouble(LATITUDE, this.latitude);
-            outState.putDouble(LONGITUDE, this.longitude);
-            outState.putInt(REFRESH_RATE, this.refreshRate);
+        if (spinnerWrapper.getRecords().size() > 0) {
+            outState.putInt(UID, spinnerWrapper.getSelected().getUid());
         }
+        outState.putInt(REFRESH_RATE, this.refreshRate);
     }
 
     public void update() {
-        this.getWeatherInfoAsync(this.spinnerWrapper.getSelected());
+        if (this.isInternetAvailable()) {
+            this.getWeatherInfoAsync(this.spinnerWrapper.getSelected().getName());
+        }
     }
 
-    private void updateMoonPhases() {
+    public void showRecord(Record record) {
+        recordViewModel.sendRecord(record);
+    }
+
+    private void startRefreshRunnable(int refreshRate) {
         try {
             if (this.refreshRunnable != null) {
                 this.handler.removeCallbacks(this.refreshRunnable);
@@ -261,11 +266,10 @@ public class MainActivity extends AppCompatActivity {
             this.refreshRunnable = new Runnable() {
                 @Override
                 public void run() {
-                    /* sending bundle to fragments */
-                    Bundle bundle = new Bundle();
-                    bundle.putDouble(LATITUDE, latitude);
-                    bundle.putDouble(LONGITUDE, longitude);
-                    bundleViewModel.sendBundle(bundle);
+                    if (isInternetAvailable()) {
+//                        spinnerWrapper.getRecords().forEach(r -> getWeatherInfoAsync(r.getName()));
+//                        spinnerWrapper.setSelection(spinnerWrapper.getSelected().getUid());
+                    }
                     handler.postDelayed(this, refreshRate * 1000L);// move this inside the run method
                 }
             };
@@ -277,7 +281,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void addCity(String city) {
-        if (pw == null) {
+        if (pw == null || !isInternetAvailable()) {
             return;
         }
         OpenWeatherInterfaceMetric apiInterface = OpenWeatherApi.getClient().create(OpenWeatherInterfaceMetric.class);
@@ -289,9 +293,8 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onResponse(@NonNull Call<OpenWeatherData> call, @NonNull Response<OpenWeatherData> response) {
                 if (response.isSuccessful()) {
-                    spinnerWrapper.add(
-                            ((EditText) pw.getContentView().findViewById(R.id.inputCity)).getText().toString());
-                    pw.dismiss();
+                    getWeatherInfoAsync(((EditText) pw.getContentView().findViewById(R.id.inputCity)).getText().toString());
+//                    pw.dismiss();
                 } else {
                     Log.e("Weather", "response is error");
                     Toast.makeText(getApplicationContext(),
@@ -311,6 +314,9 @@ public class MainActivity extends AppCompatActivity {
 
 
     private void getWeatherInfoAsync(String city) {
+        if (!isInternetAvailable()) {
+            return;
+        }
         OpenWeatherInterfaceMetric apiInterface = OpenWeatherApi.getClient().create(OpenWeatherInterfaceMetric.class);
 
         Call<OpenWeatherData> call = apiInterface.getWeatherData(city);
@@ -335,7 +341,12 @@ public class MainActivity extends AppCompatActivity {
                         @Override
                         public void onResponse(@NonNull Call<OneApiResponse> call, @NonNull Response<OneApiResponse> response2) {
                             if (response2.isSuccessful()) {
-                                dispatchWeatherInfo(response.body(), response2.body());
+                                Record record = parseWeatherInfo(city, response.body(), response2.body());
+                                recordDao.insertRecords(record);
+                                spinnerWrapper.add(record);
+                                if (record.getUid() == spinnerWrapper.getSelected().getUid()) {
+                                    recordViewModel.sendRecord(record);
+                                }
                             } else {
                                 Log.e("Forecast call", "response is error");
                                 Toast.makeText(getApplicationContext(),
@@ -368,9 +379,45 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
-    private void dispatchWeatherInfo(@NonNull OpenWeatherData response, @NonNull OneApiResponse response2) {
-        WeatherInfo weatherInfo = new WeatherInfo(response, response2, LocalDateTime.now());
-        this.weatherInfoViewModel.sendWeatherInfo(weatherInfo);
+    private Record parseWeatherInfo(@NonNull String name, @NonNull OpenWeatherData response, @NonNull OneApiResponse response2) {
+        Record record = new Record();
+        record.setName(name);
+        record.setLat(response.getCoord().getLat());
+        record.setLon(response.getCoord().getLon());
+        record.setDescription(response.getWeatherList().get(0).getDescription());
+        record.setIcon(response.getWeatherList().get(0).getIcon());
+        record.setTemp(response.getMain().getTemp());
+        record.setHumidity(response.getMain().getHumidity());
+        record.setPressure(response.getMain().getPressure());
+        record.setWindSpeed(response.getWind().getSpeed());
+        record.setWindDeg(response.getWind().getDeg());
+        record.setTime(DateTimeFormatter.ofPattern("HH:mm:ss").format(LocalDateTime.now()));
+
+        Date date = new Date((long) response2.getDailyList().get(1).getDate() * 1000);
+        record.setForecast1Date(dateFormat.format(date));
+        record.setForecast1Description(response2.getDailyList().get(1).getWeatherList().get(0).getDescription());
+        record.setForecast1Icon(response2.getDailyList().get(1).getWeatherList().get(0).getIcon());
+        record.setForecast1Temp(response2.getDailyList().get(1).getTemp().getMax() + response2.getDailyList().get(1).getTemp().getMin() / 2);
+
+        date = new Date((long) response2.getDailyList().get(2).getDate() * 1000);
+        record.setForecast2Date(dateFormat.format(date));
+        record.setForecast2Description(response2.getDailyList().get(2).getWeatherList().get(0).getDescription());
+        record.setForecast2Icon(response2.getDailyList().get(2).getWeatherList().get(0).getIcon());
+        record.setForecast2Temp(response2.getDailyList().get(2).getTemp().getMax() + response2.getDailyList().get(2).getTemp().getMin() / 2);
+
+        date = new Date((long) response2.getDailyList().get(3).getDate() * 1000);
+        record.setForecast3Date(dateFormat.format(date));
+        record.setForecast3Description(response2.getDailyList().get(3).getWeatherList().get(0).getDescription());
+        record.setForecast3Icon(response2.getDailyList().get(3).getWeatherList().get(0).getIcon());
+        record.setForecast3Temp(response2.getDailyList().get(3).getTemp().getMax() + response2.getDailyList().get(3).getTemp().getMin() / 2);
+
+        date = new Date((long) response2.getDailyList().get(4).getDate() * 1000);
+        record.setForecast4Date(dateFormat.format(date));
+        record.setForecast4Description(response2.getDailyList().get(4).getWeatherList().get(0).getDescription());
+        record.setForecast4Icon(response2.getDailyList().get(4).getWeatherList().get(0).getIcon());
+        record.setForecast4Temp(response2.getDailyList().get(4).getTemp().getMax() + response2.getDailyList().get(4).getTemp().getMin() / 2);
+
+        return record;
     }
 
     private boolean isInternetAvailable() {
@@ -380,13 +427,22 @@ public class MainActivity extends AppCompatActivity {
         return activeNetworkInfo != null && activeNetworkInfo.isConnected();
     }
 
+    public void updateTime() {
+        TextView currentTime = findViewById(R.id.currentTime);
+
+        @SuppressLint("DefaultLocale") String hours = String.format("%02d", Calendar.getInstance().get(Calendar.HOUR_OF_DAY));
+        @SuppressLint("DefaultLocale") String minutes = String.format("%02d", Calendar.getInstance().get(Calendar.MINUTE));
+        @SuppressLint("DefaultLocale") String seconds = String.format("%02d", Calendar.getInstance().get(Calendar.SECOND));
+        currentTime.setText(String.join(":", hours, minutes, seconds));
+    }
+
     @Override
-    protected void onDestroy () {
+    protected void onDestroy() {
         super.onDestroy();
         this.handler.removeCallbacks(this.refreshRunnable);
     }
 
-    private static class PagerAdapter extends FragmentStateAdapter{
+    private static class PagerAdapter extends FragmentStateAdapter {
 
 
         public PagerAdapter(@NonNull FragmentActivity fragmentActivity) {

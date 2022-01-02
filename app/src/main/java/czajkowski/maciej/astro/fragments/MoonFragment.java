@@ -19,8 +19,10 @@ import java.math.RoundingMode;
 import java.text.DecimalFormat;
 
 import czajkowski.maciej.astro.AstroCalculatorFactory;
+import czajkowski.maciej.astro.storage.Record;
 import czajkowski.maciej.astro.viewmodels.BundleViewModel;
 import czajkowski.maciej.astro.R;
+import czajkowski.maciej.astro.viewmodels.RecordViewModel;
 import czajkowski.maciej.astro.viewmodels.WeatherInfo;
 import czajkowski.maciej.astro.viewmodels.WeatherInfoViewModel;
 
@@ -66,15 +68,13 @@ public class MoonFragment extends Fragment {
     public void onViewCreated(@NonNull View v, Bundle savedInstanceState) {
         super.onViewCreated(v, savedInstanceState);
 
-        WeatherInfoViewModel weatherInfoViewModel = new ViewModelProvider(requireActivity()).get(WeatherInfoViewModel.class);
-        weatherInfoViewModel.getData().observe(getViewLifecycleOwner(), new Observer<WeatherInfo>() {
+        RecordViewModel recordViewModel = new ViewModelProvider(requireActivity()).get(RecordViewModel.class);
+        recordViewModel.getRecord().observe(getViewLifecycleOwner(), new Observer<Record>() {
             @Override
-            public void onChanged(@Nullable WeatherInfo weatherInfo) {
-                if ( weatherInfo != null ) {
+            public void onChanged(@Nullable Record record) {
+                if ( record != null ) {
                     Log.e("MoonFragment", "updating data");
-                    double latitude =  weatherInfo.getOpenWeatherResponse().getCoord().getLat();
-                    double longitude =  weatherInfo.getOpenWeatherResponse().getCoord().getLon();
-                    update(longitude, latitude);
+                    update(record.getLon(), record.getLat());
                 }
             }
         });

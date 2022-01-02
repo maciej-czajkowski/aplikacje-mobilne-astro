@@ -13,7 +13,11 @@ import androidx.fragment.app.Fragment;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 
+import java.text.DecimalFormat;
+
 import czajkowski.maciej.astro.R;
+import czajkowski.maciej.astro.storage.Record;
+import czajkowski.maciej.astro.viewmodels.RecordViewModel;
 import czajkowski.maciej.astro.viewmodels.WeatherInfo;
 import czajkowski.maciej.astro.viewmodels.WeatherInfoViewModel;
 
@@ -23,6 +27,7 @@ import czajkowski.maciej.astro.viewmodels.WeatherInfoViewModel;
  * create an instance of this fragment.
  */
 public class AdditionalWeatherFragment extends Fragment {
+    private static final DecimalFormat df = new DecimalFormat("###.##");
 
     public AdditionalWeatherFragment() {
         // Required empty public constructor
@@ -54,20 +59,20 @@ public class AdditionalWeatherFragment extends Fragment {
     public void onViewCreated(@NonNull View v, Bundle savedInstanceState) {
         super.onViewCreated(v, savedInstanceState);
 
-        WeatherInfoViewModel weatherInfoViewModel = new ViewModelProvider(requireActivity()).get(WeatherInfoViewModel.class);
-        weatherInfoViewModel.getData().observe(getViewLifecycleOwner(), new Observer<WeatherInfo>() {
+        RecordViewModel recordViewModel = new ViewModelProvider(requireActivity()).get(RecordViewModel.class);
+        recordViewModel.getRecord().observe(getViewLifecycleOwner(), new Observer<Record>() {
             @Override
-            public void onChanged(@Nullable WeatherInfo weatherInfo) {
-                if ( weatherInfo != null ) {
+            public void onChanged(@Nullable Record record) {
+                if ( record != null ) {
                     Log.e("AdditionalWeatherFragment", "updating data");
                     ((TextView) v.findViewById(R.id.windSpeed))
-                            .setText(String.valueOf(weatherInfo.getOpenWeatherResponse().getWind().getSpeed()));
+                            .setText(df.format(record.getWindSpeed()));
 
                     ((TextView) v.findViewById(R.id.windDeg))
-                            .setText(String.valueOf(weatherInfo.getOpenWeatherResponse().getWind().getDeg()));
+                            .setText(df.format(record.getWindDeg()));
 
                     ((TextView) v.findViewById(R.id.humidity))
-                            .setText(String.valueOf(weatherInfo.getOpenWeatherResponse().getMain().getHumidity()));
+                            .setText(String.valueOf(record.getHumidity()));
                 }
             }
         });

@@ -17,9 +17,13 @@ import android.widget.TextView;
 
 import com.squareup.picasso.Picasso;
 
+import java.text.DecimalFormat;
 import java.time.format.DateTimeFormatter;
 
 import czajkowski.maciej.astro.R;
+import czajkowski.maciej.astro.ResourceHandler;
+import czajkowski.maciej.astro.storage.Record;
+import czajkowski.maciej.astro.viewmodels.RecordViewModel;
 import czajkowski.maciej.astro.viewmodels.WeatherInfo;
 import czajkowski.maciej.astro.viewmodels.WeatherInfoViewModel;
 
@@ -32,6 +36,9 @@ public class MainWeatherFragment extends Fragment {
 
     private static final String WEATHER_ICON_URL_PREFIX = "https://openweathermap.org/img/w/";
     private static final String WEATHER_ICON_FILE_EXTENSION = ".png";
+
+    private static final DecimalFormat df = new DecimalFormat("###.##");
+
 
     public MainWeatherFragment() {
         // Required empty public constructor
@@ -60,43 +67,34 @@ public class MainWeatherFragment extends Fragment {
     public void onViewCreated(@NonNull View v, Bundle savedInstanceState) {
         super.onViewCreated(v, savedInstanceState);
 
-        WeatherInfoViewModel weatherInfoViewModel = new ViewModelProvider(requireActivity()).get(WeatherInfoViewModel.class);
-        weatherInfoViewModel.getData().observe(getViewLifecycleOwner(), new Observer<WeatherInfo>() {
+        RecordViewModel recordViewModel = new ViewModelProvider(requireActivity()).get(RecordViewModel.class);
+        recordViewModel.getRecord().observe(getViewLifecycleOwner(), new Observer<Record>() {
             @Override
-            public void onChanged(@Nullable WeatherInfo weatherInfo) {
-                if ( weatherInfo != null ) {
+            public void onChanged(@Nullable Record record) {
+                if ( record != null ) {
                     Log.e("MainWeatherFragment", "updating data");
                     ((TextView) v.findViewById(R.id.cityName))
-                            .setText(String.valueOf(weatherInfo.getOpenWeatherResponse().getName()));
+                            .setText(record.getName());
 
                     ((TextView) v.findViewById(R.id.latitude))
-                            .setText(String.valueOf(weatherInfo.getOpenWeatherResponse().getCoord().getLat()));
+                            .setText(df.format(record.getLat()));
 
                     ((TextView) v.findViewById(R.id.longitude))
-                            .setText(String.valueOf(weatherInfo.getOpenWeatherResponse().getCoord().getLon()));
+                            .setText(df.format(record.getLon()));
 
-                    DateTimeFormatter timeFormat = DateTimeFormatter.ofPattern("HH:mm");
                     ((TextView) v.findViewById(R.id.time))
-                            .setText(String.valueOf(timeFormat.format(weatherInfo.getLocalDateTime())));
+                            .setText(record.getTime());
 
                     ((TextView) v.findViewById(R.id.temp))
-                            .setText(String.valueOf(weatherInfo.getOpenWeatherResponse().getMain().getTemp()));
+                            .setText(df.format(record.getTemp()));
 
                     ((TextView) v.findViewById(R.id.pressure))
-                            .setText(String.valueOf(weatherInfo.getOpenWeatherResponse().getMain().getPressure()));
+                            .setText(String.valueOf(record.getPressure()));
 
-                    String iconUrl = WEATHER_ICON_URL_PREFIX +
-                            weatherInfo.getOpenWeatherResponse().getWeatherList().get(0).getIcon() +
-                            WEATHER_ICON_FILE_EXTENSION;
-
-                    Log.e("MainFragment", "Icon url = " + iconUrl);
-
-                    Picasso.with(v.getContext()).load(iconUrl).into(((ImageView) v.findViewById(R.id.weatherIcon)));
-
-                    ((ImageView) v.findViewById(R.id.weatherIcon)).setVisibility(View.VISIBLE);
+                    ((ImageView) v.findViewById(R.id.weatherIcon)).setImageResource(ResourceHandler.getIconResource(record.getIcon()));
 
                     ((TextView) v.findViewById(R.id.weatherDescription))
-                            .setText(String.valueOf(weatherInfo.getOpenWeatherResponse().getWeatherList().get(0).getDescription()));
+                            .setText(record.getDescription());
                 }
             }
         });
