@@ -1,4 +1,4 @@
-package czajkowski.maciej.astro;
+package czajkowski.maciej.astro.viewmodels;
 
 import android.os.Bundle;
 

@@ -27,15 +27,15 @@
                 android:layout_width="93dp"
                 android:layout_height="wrap_content"
                 android:gravity="center"
-                android:text="@string/city" />
+                android:text="@string/longitude" />
 
             <EditText
-                android:id="@+id/inputCity"
+                android:id="@+id/longitude"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:background="@color/white"
                 android:ems="10"
-                android:inputType="text"
+                android:inputType="numberDecimal|numberSigned"
                 android:gravity="center"
                 />
 

@@ -43,7 +43,7 @@
 
         <androidx.fragment.app.FragmentContainerView
             android:id="@+id/fragmentContainerView2"
-            android:name="czajkowski.maciej.astro.SunFragment"
+            android:name="czajkowski.maciej.astro.fragments.SunFragment"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             app:layout_constraintBottom_toBottomOf="parent"
@@ -54,7 +54,7 @@
 
         <androidx.fragment.app.FragmentContainerView
             android:id="@+id/fragmentContainerView"
-            android:name="czajkowski.maciej.astro.MoonFragment"
+            android:name="czajkowski.maciej.astro.fragments.MoonFragment"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             app:layout_constraintBottom_toBottomOf="parent"

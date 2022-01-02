@@ -6,7 +6,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:tag="sun_fragment"
-    tools:context=".SunFragment">
+    tools:context=".fragments.SunFragment">
 
     <TableLayout
         android:id="@+id/tableLayoutSun1"

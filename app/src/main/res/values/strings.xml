@@ -14,15 +14,28 @@
     <string name="fullMoon">Pełnia</string>
     <string name="degrees">Stopnie</string>
     <string name="percent">%</string>
+    <string name="city">Miasto</string>
 
     <string name="moonPhase">Faza księżyca</string>
     <string name="dayOfMontSynod">Dzień Miesiąca Synodycznego</string>
     <string name="days">Dni</string>
     <string name="longitude">Długość geo</string>
     <string name="latitude">Szerokość geo</string>
+
     <string name="refreshRate">Częstość odświeżania [s]</string>
     <string name="cordsViewDefaultText">podaj bieżącą lokalizacje w opcjach</string>
+    <string name="def">Default</string>
 
+    <string name="unknown">Nieznana</string>
+    <string name="temp">Temperatura</string>
+    <string name="pressure">Ciśnienie</string>
+    <string name="additionalInfo">Dodatkowe informacje</string>
+    <string name="windSpeed">Prędkość wiatru</string>
+    <string name="windDeg">Kierunek wiatru</string>
+    <string name="humidity">Wilgotność</string>
+    <string name="plus">+</string>
+    <string name="pickCity">Wybierz miasto</string>
+    <string name="appName">AstroWeather</string>
 
 
 </resources>

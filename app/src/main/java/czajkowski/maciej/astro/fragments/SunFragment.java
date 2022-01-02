@@ -1,4 +1,4 @@
-package czajkowski.maciej.astro;
+package czajkowski.maciej.astro.fragments;
 
 import android.os.Bundle;
 
@@ -15,6 +15,12 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import com.astrocalculator.AstroCalculator;
+
+import czajkowski.maciej.astro.AstroCalculatorFactory;
+import czajkowski.maciej.astro.viewmodels.BundleViewModel;
+import czajkowski.maciej.astro.R;
+import czajkowski.maciej.astro.viewmodels.WeatherInfo;
+import czajkowski.maciej.astro.viewmodels.WeatherInfoViewModel;
 
 public class SunFragment extends Fragment {
 
@@ -55,12 +61,15 @@ public class SunFragment extends Fragment {
     public void onViewCreated(@NonNull View v, Bundle savedInstanceState) {
         super.onViewCreated(v, savedInstanceState);
 
-        BundleViewModel bundleViewModel = new ViewModelProvider(requireActivity()).get(BundleViewModel.class);
-        bundleViewModel.getBundle().observe(getViewLifecycleOwner(), new Observer<Bundle>() {
+        WeatherInfoViewModel weatherInfoViewModel = new ViewModelProvider(requireActivity()).get(WeatherInfoViewModel.class);
+        weatherInfoViewModel.getData().observe(getViewLifecycleOwner(), new Observer<WeatherInfo>() {
             @Override
-            public void onChanged(@Nullable Bundle bundle) {
-                if ( bundle != null ) {
-                    update(bundle.getDouble(LONGITUDE), bundle.getDouble(LATITUDE));
+            public void onChanged(@Nullable WeatherInfo weatherInfo) {
+                if ( weatherInfo != null ) {
+                    Log.e("MoonFragment", "updating data");
+                    double latitude =  weatherInfo.getOpenWeatherResponse().getCoord().getLat();
+                    double longitude =  weatherInfo.getOpenWeatherResponse().getCoord().getLon();
+                    update(longitude, latitude);
                 }
             }
         });
