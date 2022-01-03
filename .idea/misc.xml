@@ -17,14 +17,14 @@
         <entry key="app/src/main/res/layout-sw600dp-land/activity_main.xml" value="0.2" />
         <entry key="app/src/main/res/layout-sw600dp-land/fragment_additional_weather.xml" value="0.1" />
         <entry key="app/src/main/res/layout-sw600dp-land/fragment_main_weather.xml" value="0.1" />
-        <entry key="app/src/main/res/layout-sw600dp/activity_main.xml" value="0.18" />
+        <entry key="app/src/main/res/layout-sw600dp/activity_main.xml" value="0.33" />
         <entry key="app/src/main/res/layout/activity_main.xml" value="0.22" />
-        <entry key="app/src/main/res/layout/fragment_additional_weather.xml" value="0.11875" />
+        <entry key="app/src/main/res/layout/fragment_additional_weather.xml" value="0.25" />
         <entry key="app/src/main/res/layout/fragment_main_weather.xml" value="0.25" />
         <entry key="app/src/main/res/layout/fragment_weather_forcast.xml" value="0.11875" />
         <entry key="app/src/main/res/layout/main_weather_fragment.xml" value="0.18" />
         <entry key="app/src/main/res/layout/moon_fragment.xml" value="0.33" />
-        <entry key="app/src/main/res/layout/settings_popup.xml" value="0.16" />
+        <entry key="app/src/main/res/layout/settings_popup.xml" value="0.25" />
         <entry key="app/src/main/res/layout/settings_popup_old.xml" value="0.1" />
         <entry key="app/src/main/res/layout/sun_fragment.xml" value="0.22" />
         <entry key="app/src/main/res/layout/toolbar.xml" value="0.19791666666666666" />

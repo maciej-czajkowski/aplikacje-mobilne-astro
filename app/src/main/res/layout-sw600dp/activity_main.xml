@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/coordinatorLayout"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+
+    <Spinner
+        android:id="@+id/citySpinner"
+        android:layout_width="250dp"
+        android:layout_height="50dp"
+        android:layout_marginTop="8dp"
+        android:text="@string/pickCity"
+        app:layout_constraintEnd_toStartOf="@+id/addCityButton"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <Button
+        android:id="@+id/addCityButton"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:text="@string/plus"
+        app:layout_constraintBottom_toBottomOf="@+id/citySpinner"
+        app:layout_constraintEnd_toStartOf="@+id/refreshIcon"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toEndOf="@+id/citySpinner"
+        app:layout_constraintTop_toTopOf="@+id/citySpinner" />
+
+    <ImageView
+        android:id="@+id/warningIcon"
+        android:layout_width="25dp"
+        android:layout_height="25dp"
+        android:visibility="invisible"
+        app:layout_constraintBottom_toBottomOf="@+id/refreshIcon"
+        app:layout_constraintEnd_toStartOf="@+id/units"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toEndOf="@+id/refreshIcon"
+        app:layout_constraintTop_toTopOf="@+id/refreshIcon"
+        app:srcCompat="@drawable/warning" />
+
+    <ImageView
+        android:id="@+id/refreshIcon"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:clickable="true"
+        app:layout_constraintBottom_toBottomOf="@+id/addCityButton"
+        app:layout_constraintEnd_toStartOf="@+id/warningIcon"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toEndOf="@+id/addCityButton"
+        app:layout_constraintTop_toTopOf="@+id/addCityButton"
+        app:srcCompat="@drawable/refresh" />
+
+    <TextView
+        android:id="@+id/units"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/unknown"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toEndOf="@+id/warningIcon"
+        tools:layout_editor_absoluteY="16dp" />
+
+    <androidx.fragment.app.FragmentContainerView
+        android:id="@+id/fragmentContainerView"
+        android:name="czajkowski.maciej.astro.fragments.SunFragment"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintBottom_toBottomOf="@+id/fragmentContainerView2"
+        app:layout_constraintEnd_toStartOf="@+id/fragmentContainerView2"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/citySpinner" />
+
+    <androidx.fragment.app.FragmentContainerView
+        android:id="@+id/fragmentContainerView2"
+        android:name="czajkowski.maciej.astro.fragments.MoonFragment"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toEndOf="@+id/fragmentContainerView"
+        app:layout_constraintTop_toBottomOf="@+id/citySpinner" />
+
+    <androidx.fragment.app.FragmentContainerView
+        android:id="@+id/fragmentContainerView3"
+        android:name="czajkowski.maciej.astro.fragments.MainWeatherFragment"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintEnd_toStartOf="@+id/fragmentContainerView4"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/fragmentContainerView" />
+
+    <androidx.fragment.app.FragmentContainerView
+        android:id="@+id/fragmentContainerView4"
+        android:name="czajkowski.maciej.astro.fragments.AdditionalWeatherFragment"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toEndOf="@+id/fragmentContainerView3"
+        app:layout_constraintTop_toBottomOf="@+id/fragmentContainerView2" />
+
+    <androidx.fragment.app.FragmentContainerView
+        android:id="@+id/fragmentContainerView5"
+        android:name="czajkowski.maciej.astro.fragments.WeatherForcastFragment"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintEnd_toEndOf="@+id/fragmentContainerView4"
+        app:layout_constraintStart_toStartOf="@+id/fragmentContainerView4"
+        app:layout_constraintTop_toBottomOf="@+id/fragmentContainerView4" />
+
+
+</androidx.constraintlayout.widget.ConstraintLayout>

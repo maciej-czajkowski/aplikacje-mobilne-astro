@@ -1,15 +1,16 @@
 package czajkowski.maciej.astro;
 
+import static android.content.ContentValues.TAG;
+
+import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Spinner;
-import android.widget.Toast;
-
-import androidx.appcompat.app.AppCompatActivity;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.NoSuchElementException;
 
 import czajkowski.maciej.astro.storage.Record;
 
@@ -39,10 +40,10 @@ public class SpinnerWrapper {
                 String choice = parent.getItemAtPosition(position).toString();
                 selected = choice;
                 activity.showRecord(getSelected());
-                Toast.makeText(parent.getContext(), "Selected: " + choice, Toast.LENGTH_LONG).show();
             }
+
             @Override
-            public void onNothingSelected(AdapterView <?> parent) {
+            public void onNothingSelected(AdapterView<?> parent) {
             }
         });
         if (this.cities.size() != 0) {
@@ -53,32 +54,35 @@ public class SpinnerWrapper {
     }
 
     public void add(Record record) {
-//        this.records.removeIf(r -> r.getName().equals(record.getName()));
         for (Record r : this.records) {
             if (r.getName().equals(record.getName())) {
-
-//                Toast.makeText(this.activity.getApplicationContext(), "This city is already in the list!", Toast.LENGTH_LONG).show();
                 return;
             }
         }
 
         this.records.add(record);
         this.setup(this.records, false);
-        this.setSelection(getSelected().getUid());
+        this.setSelection(getSelected().getName());
     }
 
     public Record getSelected() {
-        return this.records.stream().filter(r -> r.getName().equals(this.selected)).findFirst().get();
+        try {
+            return this.records.stream().filter(r -> r.getName().equals(this.selected)).findFirst().get();
+        } catch (NoSuchElementException e) {
+            return null;
+        }
     }
 
     public List<Record> getRecords() {
         return this.records;
     }
 
-    public void setSelection(int uid) {
-        for (int i =0; i<this.records.size(); i++) {
-            if (this.records.get(i).getUid() == uid) {
+    public void setSelection(String city) {
+        for (int i = 0; i < this.records.size(); i++) {
+            if (this.records.get(i).getName().equals(city)) {
+                Log.e(TAG, "setSelection: selecting " + i);
                 this.spinner.setSelection(i);
+                this.selected = city;
             }
         }
     }

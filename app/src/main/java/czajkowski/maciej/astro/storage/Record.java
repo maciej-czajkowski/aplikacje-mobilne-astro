@@ -5,6 +5,7 @@ import androidx.room.Entity;
 import androidx.room.Index;
 import androidx.room.PrimaryKey;
 
+import czajkowski.maciej.astro.Units;
 import czajkowski.maciej.astro.retrofit.oneapi.data.OneApiResponse;
 import czajkowski.maciej.astro.viewmodels.WeatherInfo;
 
@@ -15,6 +16,9 @@ public class Record {
 
     @ColumnInfo(name = "city")
     private String name;
+
+    @ColumnInfo(name = "units")
+    private Units units;
 
     @ColumnInfo(name = "lat")
     private double lat;
@@ -167,6 +171,14 @@ public class Record {
 
     public void setIcon(String icon) {
         this.icon = icon;
+    }
+
+    public Units getUnits() {
+        return units;
+    }
+
+    public void setUnits(Units units) {
+        this.units = units;
     }
 
     public double getWindSpeed() {

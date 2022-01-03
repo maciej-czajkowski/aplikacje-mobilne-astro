@@ -13,26 +13,15 @@
         android:layout_height="match_parent">
 
         <TextView
-            android:id="@+id/additionalInfoLabel"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="32dp"
-            android:text="@string/additionalInfo"
-            android:textSize="34sp"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
-
-        <TextView
             android:id="@+id/windSpeedLabel"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="24dp"
+            android:layout_marginTop="45dp"
             android:text="@string/windSpeed"
             app:layout_constraintEnd_toStartOf="@+id/windSpeed"
             app:layout_constraintHorizontal_bias="0.5"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/additionalInfoLabel" />
+            app:layout_constraintTop_toTopOf="parent" />
 
         <TextView
             android:id="@+id/windDegLabel"
@@ -74,12 +63,12 @@
             android:id="@+id/windSpeed"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="24dp"
+            android:layout_marginTop="45dp"
             android:text="@string/unknown"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.5"
             app:layout_constraintStart_toEndOf="@+id/windSpeedLabel"
-            app:layout_constraintTop_toBottomOf="@+id/additionalInfoLabel" />
+            app:layout_constraintTop_toTopOf="parent" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 

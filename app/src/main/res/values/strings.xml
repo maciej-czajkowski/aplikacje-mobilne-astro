@@ -37,6 +37,12 @@
     <string name="plus">+</string>
     <string name="pickCity">Wybierz miasto</string>
     <string name="appName">AstroWeather</string>
+    <string name="metric">metryczne</string>
+    <string name="imperial">imperialne</string>
+    <string name="standard">standardowe</string>
+    <string name="units">Jednostki</string>
+    <string name="warningText">Brak dostępu do internetu, dane mogą być nieaktualne</string>
+
 
 
 </resources>

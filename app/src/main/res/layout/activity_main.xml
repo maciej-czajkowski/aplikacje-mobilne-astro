@@ -40,8 +40,8 @@
 
     <ImageView
         android:id="@+id/warningIcon"
-        android:layout_width="50dp"
-        android:layout_height="50dp"
+        android:layout_width="25dp"
+        android:layout_height="25dp"
         android:layout_marginTop="12dp"
         android:visibility="invisible"
         app:layout_constraintEnd_toEndOf="parent"
@@ -68,6 +68,17 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/refreshIcon" />
+
+    <TextView
+        android:id="@+id/units"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="25dp"
+        android:layout_marginEnd="32dp"
+        android:text="@string/unknown"
+        app:layout_constraintEnd_toStartOf="@+id/refreshIcon"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/citySpinner" />
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>

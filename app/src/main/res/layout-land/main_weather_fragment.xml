@@ -126,13 +126,13 @@
 
     <ImageView
         android:id="@+id/weatherIcon"
-        android:layout_width="75dp"
-        android:layout_height="75dp"
-        android:layout_marginStart="8dp"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:layout_marginStart="16dp"
         android:src="@drawable/warning"
-        app:layout_constraintEnd_toStartOf="@+id/latitudeLabel"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/cityName" />
+        app:layout_constraintBottom_toTopOf="@+id/longitude"
+        app:layout_constraintStart_toEndOf="@+id/cityName"
+        app:layout_constraintTop_toTopOf="parent" />
 
     <TextView
         android:id="@+id/weatherDescription"

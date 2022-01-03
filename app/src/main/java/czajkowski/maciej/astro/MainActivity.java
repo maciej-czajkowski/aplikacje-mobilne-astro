@@ -1,15 +1,6 @@
 package czajkowski.maciej.astro;
 
-import androidx.annotation.NonNull;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentActivity;
-import androidx.fragment.app.FragmentManager;
-import androidx.lifecycle.Lifecycle;
-import androidx.lifecycle.ViewModelProvider;
-import androidx.room.Room;
-import androidx.viewpager2.adapter.FragmentStateAdapter;
-import androidx.viewpager2.widget.ViewPager2;
+import static android.content.ContentValues.TAG;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
@@ -29,15 +20,28 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.PopupWindow;
+import android.widget.RadioButton;
+import android.widget.RadioGroup;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import java.text.DecimalFormat;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentActivity;
+import androidx.fragment.app.FragmentManager;
+import androidx.lifecycle.Lifecycle;
+import androidx.lifecycle.Observer;
+import androidx.lifecycle.ViewModelProvider;
+import androidx.room.Room;
+import androidx.viewpager2.adapter.FragmentStateAdapter;
+import androidx.viewpager2.widget.ViewPager2;
+
 import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
@@ -54,17 +58,14 @@ import czajkowski.maciej.astro.retrofit.wrappers.OpenWeatherInterfaceMetric;
 import czajkowski.maciej.astro.storage.AppDataBase;
 import czajkowski.maciej.astro.storage.Record;
 import czajkowski.maciej.astro.storage.RecordDao;
-import czajkowski.maciej.astro.viewmodels.BundleViewModel;
-import czajkowski.maciej.astro.viewmodels.InternetViewModel;
 import czajkowski.maciej.astro.viewmodels.RecordViewModel;
-import czajkowski.maciej.astro.viewmodels.WeatherInfo;
-import czajkowski.maciej.astro.viewmodels.WeatherInfoViewModel;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
 public class MainActivity extends AppCompatActivity {
     private final static int TIME_REFRESH_INTERVAL_1S = 1000;
+    private final static int DEFAULT_REFRESH_TIME = 300;
     private static final String REFRESH_RATE = "refreshRate";
     private static final String UID = "uid";
 
@@ -73,7 +74,7 @@ public class MainActivity extends AppCompatActivity {
 
     private PopupWindow pw;
 
-    private int refreshRate = 300;
+    private int refreshRate = DEFAULT_REFRESH_TIME;
     private final Handler handler = new Handler();
     private Runnable refreshRunnable;
     private RecordViewModel recordViewModel;
@@ -82,6 +83,7 @@ public class MainActivity extends AppCompatActivity {
 
     private SpinnerWrapper spinnerWrapper;
     private RecordDao recordDao;
+    private Units units = Units.STANDARD;
 
 
     @Override
@@ -99,6 +101,16 @@ public class MainActivity extends AppCompatActivity {
 
         this.recordViewModel = new ViewModelProvider(this).get(RecordViewModel.class);
         this.recordViewModel.init();
+        this.recordViewModel.getRecord().observe(this, new Observer<Record>() {
+            @Override
+            public void onChanged(@Nullable Record record) {
+                if (record != null) {
+                    Log.e("MainActivity", "updating data");
+                    units = record.getUnits();
+                    ((TextView) findViewById(R.id.units)).setText("Jednostki: " + record.getUnits().toString());
+                }
+            }
+        });
 
         /* init timer */
         Handler handler = new Handler();
@@ -124,17 +136,20 @@ public class MainActivity extends AppCompatActivity {
         Runnable internetConnectionRunnable = new Runnable() {
             @Override
             public void run() {
+                if (!isInternetAvailable()) {
+                    findViewById(R.id.warningIcon).setVisibility(View.VISIBLE);
+                } else {
+                    findViewById(R.id.warningIcon).setVisibility(View.INVISIBLE);
+                }
                 boolean currentAvailability = isInternetAvailable();
+
                 if (currentAvailability != internetAvailability) {
                     Log.e("internetConnectionRunnable", "internet connection changed from " +
                             internetAvailability + " to " + currentAvailability);
                     internetAvailability = currentAvailability;
-                    if (!internetAvailability) {
-                        findViewById(R.id.warningIcon).setVisibility(View.VISIBLE);
-                    } else {
-                        findViewById(R.id.warningIcon).setVisibility(View.INVISIBLE);
+                    if (!currentAvailability) {
+                        Toast.makeText(getApplicationContext(), "Brak internetu, dane mogą być nieaktualne", Toast.LENGTH_LONG).show();
                     }
-//                    internetViewModel.alertFragments(internetAvailability);
                 }
                 handler.postDelayed(this, 1000);
             }
@@ -157,14 +172,21 @@ public class MainActivity extends AppCompatActivity {
 
         if (savedInstanceState != null) {
             if (savedInstanceState.containsKey(UID)) {
-                int uid = savedInstanceState.getInt(UID);
-                spinnerWrapper.setSelection(uid);
+                String cityName = savedInstanceState.getString(UID);
+                Log.e(TAG, "onSaveInstanceState: saving uid=" + cityName);
+
+                spinnerWrapper.setSelection(cityName);
+//                Log.e("xxxx", "uid=" + uid);
             }
-            int refreshRate = savedInstanceState.getInt(REFRESH_RATE);
-            if (refreshRate != 0) {
+            int savedRefreshRate = savedInstanceState.getInt(REFRESH_RATE);
+            if (savedRefreshRate != 0) {
+                this.refreshRate = savedRefreshRate;
                 startRefreshRunnable(refreshRate);
             }
         }
+
+        // start refresh runnable
+        startRefreshRunnable(refreshRate);
 
         Button addButton = findViewById(R.id.addCityButton);
         addButton.setOnClickListener(e -> this.showSettingsPopupWindow());
@@ -206,7 +228,7 @@ public class MainActivity extends AppCompatActivity {
         if (!getResources().getBoolean(R.bool.isTablet)) {
             pw.showAtLocation(findViewById(R.id.mainViewPager), Gravity.CENTER, 0, 0);
         } else {
-//            pw.showAtLocation(findViewById(R.id.fragmentWrapper), Gravity.CENTER, 0, 0);
+            pw.showAtLocation(findViewById(R.id.coordinatorLayout), Gravity.CENTER, 0, 0);
         }
         Button addButton = pwView.findViewById(R.id.addButton);
         EditText cityInputText = pwView.findViewById(R.id.inputCity);
@@ -222,8 +244,7 @@ public class MainActivity extends AppCompatActivity {
 
                 }
             } else {
-//                pw.dismiss();
-                Toast.makeText(getApplicationContext(), "Could not add city without internet connection!", Toast.LENGTH_LONG).show();
+                Toast.makeText(getApplicationContext(), "Nie można dodać miasta bez aktywnego połączenie do internetu!", Toast.LENGTH_LONG).show();
             }
         });
 
@@ -233,24 +254,58 @@ public class MainActivity extends AppCompatActivity {
         refreshRateView.setText(String.valueOf(this.refreshRate));
 
         refreshRateButton.setOnClickListener(view -> {
-            refreshRate = Integer.parseInt(refreshRateView.getText().toString());
+            try {
+                refreshRate = Integer.parseInt(refreshRateView.getText().toString());
+            } catch (Exception e) {
+                Toast.makeText(getApplicationContext(), "Zła wartość odswieżania!", Toast.LENGTH_LONG).show();
+            }
             startRefreshRunnable(refreshRate);
         });
 
+        RadioGroup unitButtons = pwView.findViewById(R.id.unitsRadioGroup);
+        this.setUnitsButton(pwView);
+        unitButtons.setOnCheckedChangeListener((group, id) -> {
+            if (isInternetAvailable()) {
+                View radioButton = unitButtons.findViewById(id);
+                int index = unitButtons.indexOfChild(radioButton);
+                switch (index) {
+                    case 0:
+                        this.units = Units.METRIC;
+                        Log.e("RadioButton", "Chosen metric units");
+                        break;
+                    case 1:
+                        this.units = Units.IMPERIAL;
+                        Log.e("RadioButton", "Chosen imperial units");
+                        break;
+                    case 2:
+                        this.units = Units.STANDARD;
+                        Log.e("RadioButton", "Chosen standard units");
+                        break;
+                }
+                this.update();
+            } else {
+                Toast.makeText(getApplicationContext(), "Nie można zmienić jednostek bez dostępu do internetu!", Toast.LENGTH_LONG).show();
+                this.setUnitsButton(pwView);
+            }
+        });
     }
 
     @Override
     public void onSaveInstanceState(@NonNull Bundle outState) {
         super.onSaveInstanceState(outState);
         if (spinnerWrapper.getRecords().size() > 0) {
-            outState.putInt(UID, spinnerWrapper.getSelected().getUid());
+            Log.e(TAG, "onSaveInstanceState: saving uid=" + spinnerWrapper.getSelected().getName());
+            outState.putString(UID, spinnerWrapper.getSelected().getName());
         }
         outState.putInt(REFRESH_RATE, this.refreshRate);
     }
 
     public void update() {
         if (this.isInternetAvailable()) {
-            this.getWeatherInfoAsync(this.spinnerWrapper.getSelected().getName());
+            Record record = this.spinnerWrapper.getSelected();
+            if (record != null) {
+                this.getWeatherInfoAsync(this.spinnerWrapper.getSelected().getName());
+            }
         }
     }
 
@@ -267,8 +322,8 @@ public class MainActivity extends AppCompatActivity {
                 @Override
                 public void run() {
                     if (isInternetAvailable()) {
-//                        spinnerWrapper.getRecords().forEach(r -> getWeatherInfoAsync(r.getName()));
-//                        spinnerWrapper.setSelection(spinnerWrapper.getSelected().getUid());
+                        spinnerWrapper.getRecords().forEach(r -> getWeatherInfoAsync(r.getName()));
+                        spinnerWrapper.setSelection(spinnerWrapper.getSelected().getName());
                     }
                     handler.postDelayed(this, refreshRate * 1000L);// move this inside the run method
                 }
@@ -286,7 +341,7 @@ public class MainActivity extends AppCompatActivity {
         }
         OpenWeatherInterfaceMetric apiInterface = OpenWeatherApi.getClient().create(OpenWeatherInterfaceMetric.class);
 
-        Call<OpenWeatherData> call = apiInterface.getWeatherData(city);
+        Call<OpenWeatherData> call = apiInterface.getWeatherData(city, this.units.toString());
 
         // standard data
         call.enqueue(new Callback<OpenWeatherData>() {
@@ -319,7 +374,7 @@ public class MainActivity extends AppCompatActivity {
         }
         OpenWeatherInterfaceMetric apiInterface = OpenWeatherApi.getClient().create(OpenWeatherInterfaceMetric.class);
 
-        Call<OpenWeatherData> call = apiInterface.getWeatherData(city);
+        Call<OpenWeatherData> call = apiInterface.getWeatherData(city, this.units.toString());
 
         // standard data
         call.enqueue(new Callback<OpenWeatherData>() {
@@ -334,7 +389,7 @@ public class MainActivity extends AppCompatActivity {
                     // make one api call
                     OpenWeatherInterfaceMetric apiInterface = OpenWeatherApi.getClient().create(OpenWeatherInterfaceMetric.class);
 
-                    Call<OneApiResponse> callForecast = apiInterface.getOneApiCall(String.valueOf(lat), String.valueOf(lon));
+                    Call<OneApiResponse> callForecast = apiInterface.getOneApiCall(String.valueOf(lat), String.valueOf(lon), units.toString());
 
                     // standard data
                     callForecast.enqueue(new Callback<OneApiResponse>() {
@@ -344,7 +399,7 @@ public class MainActivity extends AppCompatActivity {
                                 Record record = parseWeatherInfo(city, response.body(), response2.body());
                                 recordDao.insertRecords(record);
                                 spinnerWrapper.add(record);
-                                if (record.getUid() == spinnerWrapper.getSelected().getUid()) {
+                                if (record.getName().equals(spinnerWrapper.getSelected().getName())) {
                                     recordViewModel.sendRecord(record);
                                 }
                             } else {
@@ -392,6 +447,7 @@ public class MainActivity extends AppCompatActivity {
         record.setWindSpeed(response.getWind().getSpeed());
         record.setWindDeg(response.getWind().getDeg());
         record.setTime(DateTimeFormatter.ofPattern("HH:mm:ss").format(LocalDateTime.now()));
+        record.setUnits(this.units);
 
         Date date = new Date((long) response2.getDailyList().get(1).getDate() * 1000);
         record.setForecast1Date(dateFormat.format(date));
@@ -418,6 +474,20 @@ public class MainActivity extends AppCompatActivity {
         record.setForecast4Temp(response2.getDailyList().get(4).getTemp().getMax() + response2.getDailyList().get(4).getTemp().getMin() / 2);
 
         return record;
+    }
+
+    private void setUnitsButton(View v) {
+        switch (this.units) {
+            case METRIC:
+                ((RadioButton) v.findViewById(R.id.metricRadioButton)).setChecked(true);
+                break;
+            case IMPERIAL:
+                ((RadioButton) v.findViewById(R.id.imperialRadioButton)).setChecked(true);
+                break;
+            case STANDARD:
+                ((RadioButton) v.findViewById(R.id.standardRadioButton)).setChecked(true);
+                break;
+        }
     }
 
     private boolean isInternetAvailable() {

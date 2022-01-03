@@ -6,97 +6,115 @@
     android:layout_height="match_parent"
     android:layout_margin="50dp">
 
-    <TableLayout
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
+    <TextView
+        android:id="@+id/we3"
+        android:layout_width="93dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
         android:gravity="center"
-        app:layout_constraintBottom_toBottomOf="parent"
+        android:text="@string/city"
+        app:layout_constraintEnd_toEndOf="@+id/inputCity"
+        app:layout_constraintStart_toStartOf="@+id/inputCity"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/refreshRateLabel"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:gravity="center"
+        android:text="@string/refreshRate"
+        app:layout_constraintEnd_toEndOf="@+id/refreshRate"
+        app:layout_constraintStart_toStartOf="@+id/refreshRate"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/unitsLabel"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="8dp"
+        android:gravity="center"
+        android:text="@string/units"
+        app:layout_constraintBottom_toTopOf="@+id/unitsRadioGroup"
+        app:layout_constraintEnd_toStartOf="@+id/refreshRateButton"
+        app:layout_constraintStart_toEndOf="@+id/addButton" />
+
+    <EditText
+        android:id="@+id/refreshRate"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:background="@color/white"
+        android:ems="10"
+        android:gravity="center"
+        android:inputType="numberDecimal"
+        android:minHeight="48dp"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toEndOf="@+id/inputCity"
+        app:layout_constraintTop_toBottomOf="@+id/refreshRateLabel" />
+
+    <EditText
+        android:id="@+id/inputCity"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:background="@color/white"
+        android:ems="10"
+        android:gravity="center"
+        android:inputType="text"
+        android:minHeight="48dp"
+        app:layout_constraintEnd_toStartOf="@+id/refreshRate"
+        app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent">
-
-        <TableRow
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:gravity="center">
-
-            <TextView
-                android:id="@+id/we3"
-                android:layout_width="93dp"
-                android:layout_height="wrap_content"
-                android:gravity="center"
-                android:text="@string/longitude" />
-
-            <EditText
-                android:id="@+id/longitude"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:background="@color/white"
-                android:ems="10"
-                android:gravity="center"
-                android:inputType="numberDecimal|numberSigned" />
-
-        </TableRow>
-
-        <TableRow
-            android:layout_width="match_parent"
-            android:layout_height="match_parent" />
-
-        <TableRow
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:gravity="center">
-
-            <TextView
-                android:id="@+id/we2"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:height="30dp"
-                android:gravity="center"
-                android:text="@string/latitude" />
-
-            <EditText
-                android:id="@+id/latitude"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:background="@color/white"
-                android:ems="10"
-                android:gravity="center"
-                android:inputType="numberDecimal|numberSigned" />
-        </TableRow>
-
-        <TableRow
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:gravity="center">
-
-            <TextView
-                android:id="@+id/we"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:gravity="center"
-                android:text="@string/refreshRate" />
-
-            <EditText
-                android:id="@+id/refreshRate"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:background="@color/white"
-                android:ems="10"
-                android:gravity="center"
-                android:inputType="numberDecimal" />
-        </TableRow>
-
-    </TableLayout>
+        app:layout_constraintTop_toBottomOf="@+id/we3" />
 
     <Button
         android:id="@+id/addButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="32dp"
+        android:layout_marginTop="8dp"
+        android:text="@string/add"
+        app:layout_constraintEnd_toEndOf="@+id/inputCity"
+        app:layout_constraintStart_toStartOf="@+id/inputCity"
+        app:layout_constraintTop_toBottomOf="@+id/inputCity" />
+
+    <Button
+        android:id="@+id/refreshRateButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
         android:text="@string/ok"
-        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="@+id/refreshRate"
+        app:layout_constraintStart_toStartOf="@+id/refreshRate"
+        app:layout_constraintTop_toBottomOf="@+id/refreshRate" />
+
+    <RadioGroup
+        android:id="@+id/unitsRadioGroup"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent" />
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/refreshRateButton"
+        tools:visibility="visible">
+
+        <RadioButton
+            android:id="@+id/metricRadioButton"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/metric" />
+
+        <RadioButton
+            android:id="@+id/imperialRadioButton"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/imperial" />
+
+        <RadioButton
+            android:id="@+id/standardRadioButton"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/standard" />
+    </RadioGroup>
 
 </androidx.constraintlayout.widget.ConstraintLayout>
